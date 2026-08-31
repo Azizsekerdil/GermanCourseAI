@@ -1,0 +1,9 @@
+German Course AI — presentation sources
+
+- Real product screenshot: docs/presentation/assets/german-course-ai-screenshot.jpg
+- Original project icon: assets/app-final.png
+- Product source and tests: gca/, tests/
+- Wikibooks German: https://en.wikibooks.org/wiki/German
+- Tatoeba downloads: https://tatoeba.org/en/downloads
+- LibriVox public-domain catalog: https://librivox.org/pages/about-librivox/
+- Project Gutenberg permissions: https://www.gutenberg.org/policy/permission.html

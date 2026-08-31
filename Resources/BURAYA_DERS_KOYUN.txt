@@ -1,0 +1,2 @@
+Kendi PDF, ses ve metin ders dosyalarınızı bu klasöre koyabilirsiniz.
+Dosyalar yerel kalır ve Ders Kitaplığı sayfasında görünür.
