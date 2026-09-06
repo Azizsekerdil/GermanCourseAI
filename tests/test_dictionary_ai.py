@@ -259,3 +259,8 @@ def test_ai_noun_extra_drops_repeated_headword_and_dash_plural():
                 ' {"headword": "la nostalgie", "pos": "n", "extra": "f -", "translation": "nostalgia"}]')
         entries = D.parse_ai_entries(rows)
         assert [(e.headword, e.extra, e.plural) for e in entries] == [("cafard", "m", ""), ("nostalgie", "f", "")]
+
+
+def test_ai_translation_senses_are_deduplicated():
+    entries = D.parse_ai_entries('[{"headword": "zzz", "pos": "n", "extra": "", "translation": "craze; fad; Craze; fad"}]')
+    assert entries and entries[0].translation == "craze; fad"

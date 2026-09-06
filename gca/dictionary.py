@@ -392,6 +392,16 @@ def _fix_article(head: str, extra: str) -> tuple[str, str]:
     return head, " ".join(etoks)
 
 
+def _dedupe_senses(text: str) -> str:
+    """"craze; fad; craze" -> "craze; fad": models sometimes repeat a sense."""
+    seen: set[str] = set(); out: list[str] = []
+    for sense in (s.strip() for s in (text or "").split(";")):
+        key = C.normalize_search(sense)
+        if sense and key not in seen:
+            seen.add(key); out.append(sense)
+    return "; ".join(out)
+
+
 def parse_ai_entries(text: str) -> list[Entry]:
     """Tolerant parser for the model output; never raises, returns ``[]`` on garbage."""
     raw = _FENCE.sub("", text or "")
@@ -411,7 +421,7 @@ def parse_ai_entries(text: str) -> list[Entry]:
         if not isinstance(item, dict):
             continue
         head = _clean(item.get("headword"), _AI_LIMITS["headword"])
-        translation = _clean(item.get("translation"), _AI_LIMITS["translation"])
+        translation = _dedupe_senses(_clean(item.get("translation"), _AI_LIMITS["translation"]))
         if not head or not translation:
             continue
         pos = normalize_pos(item.get("pos"))
