@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import queue
+import sys
 import threading
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 
 from . import config as C
-from .ai_client import AIClient
+from . import secrets
+from .ai_client import AIClient, resolve_provider
 from .db import Database, Repos
 from .i18n import LANG_NAMES, t
 from .tts import Speaker
@@ -41,6 +43,8 @@ class App(tk.Tk):
         self.db = Database(); self.repos = Repos(self.db); self.profile_id = self._profile_id()
         self.speaker = Speaker(int(self.settings.get("tts_rate", 155)))
         self.ai = AIClient(self.settings.get("ai_base"), self._log_tokens)
+        self.ai_alt = AIClient(self.settings.get("alt_base") or C.NIM_BASE, self._log_tokens,
+                               api_key=secrets.get_secret("alt_api_key"), model=self.settings.get("alt_model", ""))
         self._tabs = {}; self.nav_buttons = {}; self._current_key = "tab.study"; self._tasks = queue.Queue()
         self._build_shell(); self.rebuild_navigation(); self.rebuild_pages(); self.select("tab.study")
         self.protocol("WM_DELETE_WINDOW", self.on_close); self.after(80, self._drain_tasks); self.after(600, self.check_ai)
@@ -92,6 +96,8 @@ class App(tk.Tk):
         for page in self._tabs.values(): page.pack_forget()
         for k, button in self.nav_buttons.items(): button.configure(bg=self.palette["card"] if k == key else self.palette["deep"], fg=self.palette["accent"] if k == key else self.palette["fg"])
         self._current_key = key; self._tabs[key].pack(fill="both", expand=True); self.page_title.configure(text=self.t(key)); self.status.set(self.t("g.ready"))
+        on_show = getattr(self._tabs[key], "on_show", None)
+        if on_show: on_show()
 
     def current_page(self): return self._tabs.get(self._current_key)
     def language_changed(self, _event=None):
@@ -117,6 +123,15 @@ class App(tk.Tk):
         if self.settings.get("tts_enabled"): self.speaker.speak(text)
     def _log_tokens(self, model, task, ptok, ctok, ms, ok):
         self.repos.tokens.log(model, task, ptok, ctok, ms, ok)
+    def refresh_ai_clients(self):
+        """Re-read base/key/model for both clients after the settings (or the stored key) changed."""
+        self.ai.configure(self.settings.get("ai_base") or C.LMSTUDIO_BASE)
+        self.ai_alt.configure(self.settings.get("alt_base") or C.NIM_BASE, secrets.get_secret("alt_api_key"), self.settings.get("alt_model", ""))
+    def dict_provider(self, policy=None):
+        """Client the dictionary should use right now (None = off/unreachable). May probe the network; call off the UI thread."""
+        return resolve_provider(self.settings, self.ai, self.ai_alt, policy)
+    def provider_name(self, client):
+        return self.t("dict.ai_alt") if client is self.ai_alt else self.t("dict.ai_local")
     def check_ai(self):
         def work(): return self.ai.available()
         def done(ok): self.ai_status.configure(text="AI: " + (self.t("g.available") if ok else self.t("g.unavailable")), fg=self.palette["ok"] if ok else self.palette["muted"])
@@ -129,7 +144,9 @@ class App(tk.Tk):
     def _drain_tasks(self):
         try:
             while True:
-                callback, value = self._tasks.get_nowait(); callback(value)
+                callback, value = self._tasks.get_nowait()
+                try: callback(value)
+                except Exception: self.report_callback_exception(*sys.exc_info())     # one bad callback must not stop the loop
         except queue.Empty: pass
         if self.winfo_exists(): self.after(80, self._drain_tasks)
 

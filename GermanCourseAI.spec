@@ -11,7 +11,7 @@ a = Analysis(
         (str(root / "Resources"), "Resources"),
         (str(root / "grammar"), "grammar"),
     ],
-    hiddenimports=["pypdf"],
+    hiddenimports=["pypdf", "gca.secrets", "gca.dictionary", "gca.dict_data", "gca.tabs.dictionary"],
     hookspath=[], hooksconfig={}, runtime_hooks=[], excludes=[], noarchive=False,
 )
 pyz = PYZ(a.pure)

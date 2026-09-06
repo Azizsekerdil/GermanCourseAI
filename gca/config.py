@@ -12,8 +12,10 @@ APP_NAME = "German Course AI"
 APP_SLUG = "GermanCourseAI"
 TARGET_LANG = "de"
 TARGET_LANG_NAME = "Deutsch"
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 HOME_ENV = "GCA_HOME"
+API_KEY_ENV = f"{APP_SLUG.upper()}_API_KEY"              # overrides the stored alternative-endpoint key
+SECRETS_FILE_ENV = f"{APP_SLUG.upper()}_SECRETS_FILE"    # "1" forces the JSON secret store (tests)
 DB_FILENAME = "GermanCourseAI.db"
 PACK_EXTENSION = ".gcapack"
 UI_LANGS = ("tr", "en", "de")
@@ -49,12 +51,15 @@ def ensure_dirs() -> None:
 
 LMSTUDIO_BASE = "http://127.0.0.1:1234"
 NIM_BASE = "https://integrate.api.nvidia.com/v1"
+ALT_MODEL_DEFAULT = "meta/llama-3.1-8b-instruct"
+DICT_AI_POLICIES = ("auto", "local", "alt", "off")      # dictionary AI provider policy
 MODEL_PROFILES = {
     "chat": ["qwen2.5-7b-instruct", "llama-3.1-8b-instruct"],
     "grammar": ["qwen2.5-7b-instruct", "qwen2.5-14b-instruct"],
     "translate": ["qwen2.5-7b-instruct", "gemma-2-9b-it"],
     "correct": ["qwen2.5-7b-instruct", "qwen2.5-14b-instruct"],
     "dialogue": ["qwen2.5-7b-instruct", "llama-3.1-8b-instruct"],
+    "dictionary": ["qwen2.5-7b-instruct", "llama-3.1-8b-instruct"],
     "vision": ["qwen2-vl-7b-instruct", "llava-v1.6-mistral-7b"],
 }
 
@@ -68,7 +73,12 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "ai_enabled": True,
     "ai_base": LMSTUDIO_BASE,
     "ai_model": MODEL_PROFILES["chat"][0],
-    "nim_enabled": False,
+    "nim_enabled": False,               # legacy stub; migrated to alt_enabled on load
+    "alt_enabled": False,
+    "alt_base": NIM_BASE,
+    "alt_model": ALT_MODEL_DEFAULT,
+    "dict_ai": "auto",                  # auto | local | alt | off
+    "dict_ai_autosave": True,
     "cefr": "A1",
     "last_pdf": "",
 }
@@ -94,10 +104,16 @@ def load_settings() -> dict[str, Any]:
         raw = json.loads(SETTINGS_PATH.read_text(encoding="utf-8"))
         if isinstance(raw, dict):
             result.update({k: raw[k] for k in DEFAULT_SETTINGS if k in raw})
+            if raw.get("nim_enabled") and "alt_enabled" not in raw:      # pre-alt settings file
+                result["alt_enabled"] = True
     except (OSError, ValueError, TypeError):
         pass
     if result.get("ui_lang") not in UI_LANGS:
         result["ui_lang"] = "tr"
+    if result.get("dict_ai") not in DICT_AI_POLICIES:
+        result["dict_ai"] = "auto"
+    if not str(result.get("alt_base") or "").strip():
+        result["alt_base"] = NIM_BASE
     return result
 
 

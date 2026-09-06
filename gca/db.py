@@ -10,7 +10,7 @@ from . import config as C
 from .seed_words import WORDS
 from .srs import SRSState
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 SCHEMA = """
 PRAGMA foreign_keys=ON;
@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS grammar_progress(
 CREATE TABLE IF NOT EXISTS dict_entries(
  id INTEGER PRIMARY KEY, headword TEXT NOT NULL, translation TEXT NOT NULL,
  pos TEXT NOT NULL DEFAULT '', extra TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '',
+ source TEXT NOT NULL DEFAULT 'user', example TEXT NOT NULL DEFAULT '',
  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, UNIQUE(headword, translation));
 """
 
@@ -92,6 +93,10 @@ class Database:
         for name, sql_type in additions.items():
             if name not in columns:
                 self.conn.execute(f"ALTER TABLE words ADD COLUMN {name} {sql_type}")
+        dict_columns = {r[1] for r in self.conn.execute("PRAGMA table_info(dict_entries)")}
+        for name, sql_type in {"source": "TEXT NOT NULL DEFAULT 'user'", "example": "TEXT NOT NULL DEFAULT ''"}.items():
+            if name not in dict_columns:
+                self.conn.execute(f"ALTER TABLE dict_entries ADD COLUMN {name} {sql_type}")
         self.conn.execute("INSERT INTO meta(key,value) VALUES('schema_version',?) "
                           "ON CONFLICT(key) DO UPDATE SET value=excluded.value", (str(SCHEMA_VERSION),))
         self.conn.commit()
@@ -307,20 +312,29 @@ class GrammarRepo:
 
 
 class DictRepo:
-    """User-added dictionary entries layered on top of the built-in dictionary."""
+    """User-added and AI-cached dictionary entries layered on top of the built-in dictionary."""
+    SOURCE_USER, SOURCE_AI = "user", "ai"
     def __init__(self, db: Database): self.db = db
     def all(self): return [dict(r) for r in self.db.query("SELECT * FROM dict_entries ORDER BY headword")]
-    def count(self) -> int: return int(self.db.one("SELECT COUNT(*) n FROM dict_entries")["n"])
-    def add_many(self, rows) -> int:
-        """rows: (headword, translation[, pos[, extra[, note]]]). Returns the number actually inserted."""
+    def count(self, source: str | None = None) -> int:
+        if source: return int(self.db.one("SELECT COUNT(*) n FROM dict_entries WHERE source=?", (source,))["n"])
+        return int(self.db.one("SELECT COUNT(*) n FROM dict_entries")["n"])
+    def count_by_source(self) -> dict[str, int]:
+        return {r["source"]: int(r["n"]) for r in self.db.query("SELECT source, COUNT(*) n FROM dict_entries GROUP BY source")}
+    def add_many(self, rows, source: str = SOURCE_USER) -> int:
+        """rows: (headword, translation[, pos[, extra[, note[, example]]]]). Returns the number actually inserted."""
         before = self.count()
-        self.db.conn.executemany("INSERT OR IGNORE INTO dict_entries(headword,translation,pos,extra,note) VALUES(?,?,?,?,?)",
+        self.db.conn.executemany("INSERT OR IGNORE INTO dict_entries(headword,translation,pos,extra,note,source,example) VALUES(?,?,?,?,?,?,?)",
                                  [(r[0].strip(), r[1].strip(), (r[2] if len(r) > 2 else "") or "", (r[3] if len(r) > 3 else "") or "",
-                                   (r[4] if len(r) > 4 else "") or "") for r in rows if r and r[0].strip() and r[1].strip()])
+                                   (r[4] if len(r) > 4 else "") or "", source or self.SOURCE_USER, (r[5] if len(r) > 5 else "") or "")
+                                  for r in rows if r and r[0].strip() and r[1].strip()])
         self.db.conn.commit(); return self.count() - before
-    def add(self, headword: str, translation: str, pos: str = "", extra: str = "", note: str = "") -> int:
-        return self.add_many([(headword, translation, pos, extra, note)])
-    def clear(self) -> None: self.db.execute("DELETE FROM dict_entries")
+    def add(self, headword: str, translation: str, pos: str = "", extra: str = "", note: str = "",
+            source: str = SOURCE_USER, example: str = "") -> int:
+        return self.add_many([(headword, translation, pos, extra, note, example)], source)
+    def clear(self, source: str | None = None) -> None:
+        if source: self.db.execute("DELETE FROM dict_entries WHERE source=?", (source,))
+        else: self.db.execute("DELETE FROM dict_entries")
 
 
 class Repos:

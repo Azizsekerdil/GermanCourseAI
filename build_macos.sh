@@ -41,6 +41,7 @@ done
   --osx-bundle-identifier "com.germancourseai.desktop" \
   "${ICON_ARGS[@]}" "${DATA_ARGS[@]}" \
   --hidden-import pypdf \
+  --hidden-import gca.secrets --hidden-import gca.dictionary --hidden-import gca.dict_data --hidden-import gca.tabs.dictionary \
   "$PROJECT_ROOT/German_Course_AI.pyw"
 
 APP_PATH="dist/GermanCourseAI.app"
