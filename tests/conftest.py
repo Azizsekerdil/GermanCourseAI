@@ -57,6 +57,10 @@ class MockOpenAI:
         self.sample = SAMPLE_ENTRIES[C.TARGET_LANG]
         self.content = content if content is not None else fenced(self.sample)
         self.requests: list[dict] = []
+        self.finish_reason = "stop"      # finish_reason of chat answers ("length" = truncated)
+        self.reasoning_tokens = 0        # thinking-model imitation: usage.completion_tokens_details
+        self.reject_fields: set = set()  # answer 400 when the request body carries one of these fields
+        self.queue: list = []            # (content, finish_reason) pairs served in order before .content
         self._lock = threading.Lock()
         server = self
 
@@ -83,10 +87,22 @@ class MockOpenAI:
                 server._record("POST", self.path, self.headers.get("Authorization", ""), body)
                 if not self.path.rstrip("/").endswith("/chat/completions"):
                     self._send({"error": "not found"}, 404); return
-                content = server.content(body) if callable(server.content) else server.content
+                bad = sorted(k for k in server.reject_fields if k in body)
+                if bad:
+                    self._send({"error": {"message": f"Unrecognized request argument: {bad[0]}"}}, 400); return
+                with server._lock:
+                    queued = server.queue.pop(0) if server.queue else None
+                if queued is not None:
+                    content, finish = queued
+                else:
+                    content = server.content(body) if callable(server.content) else server.content
+                    finish = server.finish_reason
+                usage = {"prompt_tokens": 42, "completion_tokens": 17, "total_tokens": 59}
+                if server.reasoning_tokens:
+                    usage["completion_tokens_details"] = {"reasoning_tokens": server.reasoning_tokens}
                 self._send({"id": "chatcmpl-mock", "object": "chat.completion", "model": body.get("model", MockOpenAI.MODEL),
-                            "choices": [{"index": 0, "message": {"role": "assistant", "content": content}, "finish_reason": "stop"}],
-                            "usage": {"prompt_tokens": 42, "completion_tokens": 17, "total_tokens": 59}})
+                            "choices": [{"index": 0, "message": {"role": "assistant", "content": content}, "finish_reason": finish}],
+                            "usage": usage})
 
         self.httpd = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         self.httpd.daemon_threads = True

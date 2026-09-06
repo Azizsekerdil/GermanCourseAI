@@ -279,6 +279,7 @@ def build_dictionary(user_rows: Iterable[Sequence[Any]] = ()) -> Dictionary:
 # AI lookup (structured)
 # ---------------------------------------------------------------------------
 AI_MAX_ENTRIES = 5
+AI_MAX_TOKENS = 1200
 _AI_LIMITS = {"headword": 80, "pos": 12, "extra": 80, "translation": 200, "example": 240, "note": 240}
 _OTHER_LANG_NAME = {"de": "English", "fr": "English", "en": "Turkish", "ru": "English"}
 
@@ -427,6 +428,15 @@ def ai_lookup(client, query: str, ui_lang: str = "en", model: str = "") -> list[
         return []
     system = (f"You are a precise bilingual {C.TARGET_LANG_NAME} dictionary. "
               "You output strictly valid JSON and nothing else.")
-    text = client.chat(ai_prompt(query, ui_lang), "dictionary", ui_lang, model, timeout=60.0,
-                       system=system, temperature=0.1, max_tokens=700)
-    return parse_ai_entries(text)
+    # Thinking models (gemma-4, qwen3...) can spend the whole budget on reasoning and return an
+    # empty content; local servers get reasoning_effort=none (a server that rejects the field
+    # with 400 is retried without it). An empty, truncated answer is retried once with 3x budget.
+    extra = {"reasoning_effort": "none"} if getattr(client, "is_local", False) else None
+    text = client.chat(ai_prompt(query, ui_lang), "dictionary", ui_lang, model, timeout=90.0,
+                       system=system, temperature=0.1, max_tokens=AI_MAX_TOKENS, extra=extra)
+    entries = parse_ai_entries(text)
+    if not entries and getattr(client, "last_finish_reason", "") == "length":
+        text = client.chat(ai_prompt(query, ui_lang), "dictionary", ui_lang, model, timeout=180.0,
+                           system=system, temperature=0.1, max_tokens=AI_MAX_TOKENS * 3, extra=extra)
+        entries = parse_ai_entries(text)
+    return entries

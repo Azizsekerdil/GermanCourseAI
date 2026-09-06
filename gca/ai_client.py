@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import ipaddress
 import json
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -41,6 +42,47 @@ def host_kind(base: str) -> str:
     return "private" if ip.is_private or ip.is_link_local else "public"
 
 
+# Model-name fragments that mark a model as unsuitable for text tasks (embeddings, maths, vision, medical...).
+_SPECIALIST_HINTS = ("embed", "embedding", "rerank", "math", "coder", "code-", "moondream", "llava",
+                     "-vl", "vision", "bio", "medic", "whisper", "tts", "audio", "clip", "sd-", "stable-diffusion")
+_SIZE_RE = re.compile(r"(\d+(?:\.\d+)?)\s*b(?![a-z0-9])", re.IGNORECASE)
+
+
+def model_size_b(name: str) -> float:
+    """Parameter count (billions) guessed from the model name; 0 when unknown."""
+    sizes = [float(x) for x in _SIZE_RE.findall(name or "")]
+    return max(sizes) if sizes else 0.0
+
+
+def is_specialist(name: str) -> bool:
+    """True for embedding / maths / vision / medical models that must not answer dictionary or chat tasks."""
+    low = (name or "").lower()
+    return any(h in low for h in _SPECIALIST_HINTS)
+
+
+def rank_models(installed: list[str], task: str = "chat") -> list[str]:
+    """Order installed models by fitness for ``task`` (best first).
+
+    Exact profile match > profile family (qwen, llama...) > any general model; specialist
+    models are used only when nothing else exists. Ties prefer 4-16B models (they fit a
+    typical laptop) over very large ones, then names that look like chat/instruct models.
+    """
+    prefs = [p.lower() for p in C.MODEL_PROFILES.get(task, C.MODEL_PROFILES["chat"])]
+    families = [p.split("-")[0].split("/")[-1] for p in prefs]
+
+    def key(name: str):
+        low = name.lower()
+        exact = 0 if low in prefs else 1
+        family = 0 if any(f and f in low for f in families) else 1
+        size = model_size_b(low)
+        bucket = 0 if 4 <= size <= 16 else (1 if size and size < 4 else (2 if size else 1))
+        chatty = 0 if any(k in low for k in ("instruct", "-it", "chat", "assistant")) else 1
+        return (exact, family, bucket, chatty, installed.index(name))
+
+    general = [m for m in installed if not is_specialist(m)]
+    return sorted(general or list(installed), key=key)
+
+
 class AIError(RuntimeError):
     pass
 
@@ -57,6 +99,8 @@ class AIClient:
         self.api_key = ""
         self.model = ""
         self.last_model = ""
+        self.last_finish_reason = ""
+        self.last_reasoning_tokens = 0
         self._reach: tuple[float, bool] | None = None
         self.configure(base or C.LMSTUDIO_BASE, api_key, model)
 
@@ -144,11 +188,12 @@ class AIClient:
         for candidate in C.MODEL_PROFILES.get(task, C.MODEL_PROFILES["chat"]):
             if candidate in installed:
                 return candidate
-        return installed[0] if installed else (configured or C.MODEL_PROFILES["chat"][0])
+        ranked = rank_models(installed, task)
+        return ranked[0] if ranked else (configured or C.MODEL_PROFILES["chat"][0])
 
     def chat(self, prompt: str, task: str, ui_lang: str, model: str = "",
              image_path: str = "", timeout: float = 90.0, system: str = "",
-             temperature: float = 0.35, max_tokens: int = 900) -> str:
+             temperature: float = 0.35, max_tokens: int = 900, extra: dict | None = None) -> str:
         chosen = self.choose_model(task, model)
         self.last_model = chosen
         content: str | list[dict] = prompt
@@ -158,22 +203,36 @@ class AIClient:
             encoded = base64.b64encode(path.read_bytes()).decode("ascii")
             content = [{"type": "text", "text": prompt},
                        {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{encoded}"}}]
-        body = json.dumps({
+        payload_in: dict[str, Any] = {
             "model": chosen,
             "messages": [{"role": "system", "content": system or SYSTEM_PROMPTS.get(ui_lang, SYSTEM_PROMPTS["en"])},
                          {"role": "user", "content": content}],
             "temperature": temperature,
             "max_tokens": max_tokens,
-        }, ensure_ascii=False).encode("utf-8")
+        }
+        if extra:                                   # e.g. reasoning_effort for thinking models
+            payload_in.update(extra)
+        self.last_finish_reason = ""
+        self.last_reasoning_tokens = 0
         started = time.perf_counter()
         ok = False
         usage: dict[str, Any] = {}
         try:
-            with self._open("chat/completions", data=body, timeout=timeout) as response:
-                payload = json.loads(response.read().decode("utf-8"))
+            try:
+                payload = self._post_chat(payload_in, timeout)
+            except urllib.error.HTTPError as exc:
+                if not extra or exc.code not in (400, 422):
+                    raise
+                for key in extra:                   # server does not know the extra fields: retry without them
+                    payload_in.pop(key, None)
+                payload = self._post_chat(payload_in, timeout)
             usage = payload.get("usage") or {}
+            details = usage.get("completion_tokens_details") or {}
+            self.last_reasoning_tokens = int(details.get("reasoning_tokens") or 0)
+            choice = payload["choices"][0]
+            self.last_finish_reason = str(choice.get("finish_reason") or "")
             ok = True
-            return payload["choices"][0]["message"]["content"].strip()
+            return (choice["message"].get("content") or "").strip()
         except (OSError, KeyError, IndexError, TypeError, ValueError, urllib.error.URLError) as exc:
             raise AIError(str(exc)) from exc
         finally:
@@ -181,6 +240,12 @@ class AIClient:
                 elapsed = int((time.perf_counter() - started) * 1000)
                 self.token_logger(chosen, task, int(usage.get("prompt_tokens", 0) or 0),
                                   int(usage.get("completion_tokens", 0) or 0), elapsed, ok)
+
+    def _post_chat(self, payload: dict[str, Any], timeout: float) -> dict[str, Any]:
+        """One POST /v1/chat/completions; HTTP errors propagate untouched."""
+        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        with self._open("chat/completions", data=body, timeout=timeout) as response:
+            return json.loads(response.read().decode("utf-8"))
 
 
 def resolve_provider(settings: dict, local: AIClient | None, alt: AIClient | None,

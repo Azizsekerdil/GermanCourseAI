@@ -178,3 +178,64 @@ def test_entry_defaults_and_table_roundtrip_keep_example(tmp_path):
     assert d.lookup("Zzqqxx")[1][0].example == "Das Zzqqxx ist alt."
     assert d.contains(ai) and not d.contains(D.Entry("nope", "n", "", "nothing"))
     assert d.contains(D.Entry("Haus", "n", "das Häuser", "house", "", D.SOURCE_AI))      # duplicates of built-in entries are recognised
+
+
+# ---------------------------------------------------------------------------
+# Thinking models (gemma-4 / qwen3): reasoning_effort field, truncated-answer retry, model ranking
+# ---------------------------------------------------------------------------
+def test_local_client_sends_reasoning_off_and_records_finish_reason(mock_ai):
+    mock_ai.reasoning_tokens = 3
+    client = AIClient(mock_ai.base)
+    assert client.is_local
+    entries = D.ai_lookup(client, mock_ai.sample[0]["headword"], "en")
+    assert entries and entries[0].source == D.SOURCE_AI
+    body = mock_ai.chats[-1]["body"]
+    assert body.get("reasoning_effort") == "none" and body["max_tokens"] == D.AI_MAX_TOKENS
+    assert client.last_finish_reason == "stop" and client.last_reasoning_tokens == 3
+
+
+def test_remote_client_does_not_send_reasoning_field(mock_ai):
+    class RemoteClient(AIClient):                     # hosted endpoint stand-in
+        is_local = property(lambda self: False)
+
+    client = RemoteClient(mock_ai.base, api_key="k")
+    assert D.ai_lookup(client, mock_ai.sample[0]["headword"], "en")
+    assert "reasoning_effort" not in mock_ai.chats[-1]["body"]
+    assert AIClient(mock_ai.base).is_local                       # class property untouched
+
+
+def test_server_rejecting_extra_fields_gets_a_retry_without_them(mock_ai):
+    mock_ai.reject_fields = {"reasoning_effort"}
+    client = AIClient(mock_ai.base)
+    assert D.ai_lookup(client, mock_ai.sample[0]["headword"], "en")
+    chats = mock_ai.chats
+    assert len(chats) == 2
+    assert "reasoning_effort" in chats[0]["body"] and "reasoning_effort" not in chats[1]["body"]
+
+
+def test_truncated_empty_answer_is_retried_with_a_bigger_budget(mock_ai):
+    mock_ai.queue = [("", "length"), (mock_ai.content, "stop")]
+    client = AIClient(mock_ai.base)
+    assert D.ai_lookup(client, mock_ai.sample[0]["headword"], "en")
+    chats = mock_ai.chats
+    assert len(chats) == 2 and chats[1]["body"]["max_tokens"] == D.AI_MAX_TOKENS * 3
+    mock_ai.queue = [("Sorry, I cannot help with that.", "stop")]          # not truncated: no retry
+    assert D.ai_lookup(client, "zzqqxx", "en") == [] and len(mock_ai.chats) == 3
+
+
+def test_rank_models_skips_specialist_models_and_prefers_fitting_general_models():
+    from gca import ai_client as A
+    installed = ["qwen/qwen3.6-35b-a3b", "google/gemma-4-12b-qat", "qwen/qwen3-vl-8b", "biomistral-7b",
+                 "qwen2.5-math-7b-instruct", "moondream-2b-2025-04-14", "text-embedding-nomic-embed-text-v1.5"]
+    ranked = A.rank_models(installed, "dictionary")
+    assert ranked[0] == "google/gemma-4-12b-qat"
+    assert "qwen2.5-math-7b-instruct" not in ranked and "text-embedding-nomic-embed-text-v1.5" not in ranked
+    assert A.rank_models(["text-embedding-x"], "chat") == ["text-embedding-x"]
+    assert A.rank_models(["gemma-4-12b-qat", "qwen2.5-7b-instruct"], "chat")[0] == "qwen2.5-7b-instruct"
+    assert A.model_size_b("qwen/qwen3.6-35b-a3b") == 35.0 and A.is_specialist("qwen/qwen3-vl-8b")
+
+
+def test_choose_model_avoids_specialist_models(monkeypatch, mock_ai):
+    client = AIClient(mock_ai.base)
+    monkeypatch.setattr(client, "models", lambda timeout=1.5: ["qwen2.5-math-7b-instruct", "google/gemma-4-12b-qat"])
+    assert client.choose_model("dictionary") == "google/gemma-4-12b-qat"
