@@ -241,10 +241,10 @@ const configs = [
     metricTabsLabel: "öğrenme alanı\nlearning areas\nLernbereiche",
     deliveryLine: "EXE + source + docs + private GitHub + trilingual deck · EXE + kaynak + belgeler + özel GitHub + üç dilli sunum",
     platformCaption: "Windows x64 · macOS arm64",
-    platformLineTr: "Windows 10/11 (x64) + macOS (Apple Silicon) — İndirme: github.com/Azizsekerdil/GermanCourseAI/releases (v1.1.0) · (özel repo)",
-    platformLineEn: "Windows 10/11 (x64) & macOS (Apple Silicon) — Download: GitHub Releases (v1.1.0)",
+    platformLineTr: "Windows 10/11 (x64) + macOS (Apple Silicon) — İndirme: github.com/Azizsekerdil/GermanCourseAI/releases (v1.1.1) · (özel repo)",
+    platformLineEn: "Windows 10/11 (x64) & macOS (Apple Silicon) — Download: GitHub Releases (v1.1.1)",
     macNote: "macOS paketi Apple Silicon (arm64) içindir ve notarize edilmemiştir; ilk açılışta sağ tık → Aç. / Not notarized; first launch: right-click → Open.",
-    releaseUrl: "https://github.com/Azizsekerdil/GermanCourseAI/releases/tag/v1.1.0",
+    releaseUrl: "https://github.com/Azizsekerdil/GermanCourseAI/releases/tag/v1.1.1",
   },
   {
     name: "French Course AI", shortName: "French Course AI", pkg: "fca",
