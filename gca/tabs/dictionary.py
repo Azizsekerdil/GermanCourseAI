@@ -23,19 +23,21 @@ class DictionaryTab(BaseTab):
         self.results = []; self.history = []; self._last_q = ""
         self._ai_seq = 0            # bumped by every explicit or quiet search / AI request: older requests may no longer touch the list
         self._ai_pending = None     # sequence number of the AI request in flight, if any
-        bar = ttk.Frame(self); bar.pack(fill="x", pady=(0, 9))
+        bar = ttk.Frame(self); bar.pack(fill="x", pady=(0, 6))
+        airow = ttk.Frame(self)          # AI policy + provider state live on their own row so the toolbar never overflows
         self.query = tk.StringVar()
         self.entry = ttk.Entry(bar, textvariable=self.query, font=("Segoe UI", 12)); self.entry.pack(side="left", fill="x", expand=True)
         self.entry.bind("<Return>", lambda _e: self.search()); self.entry.bind("<KeyRelease>", self._on_key)
         ttk.Button(bar, text=self.t("g.search"), style="Accent.TButton", command=self.search).pack(side="left", padx=5)
         self.dir_label = ttk.Label(bar, text="", style="Muted.TLabel", width=9); self.dir_label.pack(side="left", padx=(2, 8))
         ttk.Button(bar, text="🎲 " + self.t("dict.random"), command=self.random_word).pack(side="left")
-        ttk.Label(bar, text=self.t("dict.ai_policy"), style="Muted.TLabel").pack(side="left", padx=(12, 3))
+        ttk.Label(airow, text=self.t("dict.ai_policy"), style="Muted.TLabel").pack(side="left", padx=(0, 4))
         self._policy_labels = {code: self.t(k) for code, k in self.POLICY_KEYS.items()}
         self.policy = tk.StringVar(value=self._policy_labels.get(self.app.settings.get("dict_ai", "auto"), self._policy_labels["auto"]))
-        self.policy_box = ttk.Combobox(bar, textvariable=self.policy, state="readonly", width=11, values=[self._policy_labels[c] for c in C.DICT_AI_POLICIES])
+        self.policy_box = ttk.Combobox(airow, textvariable=self.policy, state="readonly", width=11, values=[self._policy_labels[c] for c in C.DICT_AI_POLICIES])
         self.policy_box.pack(side="left"); self.policy_box.bind("<<ComboboxSelected>>", self._policy_changed)
-        self.ai_state = ttk.Label(bar, text="", style="Muted.TLabel"); self.ai_state.pack(side="left", padx=(6, 0))
+        self.ai_state = ttk.Label(airow, text="", style="Muted.TLabel"); self.ai_state.pack(side="left", padx=(8, 0))
+        airow.pack(fill="x", pady=(0, 8))
         ttk.Button(bar, text="+ " + self.t("dict.add_entry"), command=self.add_entry).pack(side="right", padx=3)
         ttk.Button(bar, text=f"↓ {self.t('dict.import')}", command=self.import_file).pack(side="right", padx=3)
         ttk.Button(bar, text=f"↑ {self.t('dict.export')}", command=self.export_file).pack(side="right", padx=3)
@@ -266,8 +268,15 @@ class DictionaryTab(BaseTab):
         lines.append(f"\n— {self.t('dict.answered_by')}: {provider}")
         if not self._finish(seq, "\n".join(lines), f"'{q}': {len(entries)} {self.t('dict.ai_results')}"): return
         rows = entries + ([e for e in self.results if e.source != D.SOURCE_AI] if merge else [])
-        direction = "target" if C.normalize_search(q) in {C.normalize_search(e.headword) for e in entries} else self.dict.lookup(q)[0]
+        qn = C.normalize_search(q)
+        if qn in {C.normalize_search(e.headword) for e in entries}:
+            direction = "target"
+        elif any(qn in D._senses(e.translation) for e in entries):
+            direction = "translation"                       # "to procrastinate" -> aufschieben: the query was the other language
+        else:
+            direction = self.dict.lookup(q)[0]
         self._fill(direction, rows)
+        self.dir_label.configure(text=f"{C.TARGET_LANG.upper()} → {self._other()}" if direction == "target" else f"{self._other()} → {C.TARGET_LANG.upper()}")
         first = self.tree.get_children()[0]; self.tree.selection_set(first); self.tree.focus(first); self.selected()
 
     def _autosave(self, entries: list, seq: int) -> int:

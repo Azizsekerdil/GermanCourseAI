@@ -239,3 +239,23 @@ def test_choose_model_avoids_specialist_models(monkeypatch, mock_ai):
     client = AIClient(mock_ai.base)
     monkeypatch.setattr(client, "models", lambda timeout=1.5: ["qwen2.5-math-7b-instruct", "google/gemma-4-12b-qat"])
     assert client.choose_model("dictionary") == "google/gemma-4-12b-qat"
+
+
+def test_ai_noun_extra_drops_repeated_headword_and_dash_plural():
+    if C.TARGET_LANG not in ("de", "fr"):
+        return
+    if C.TARGET_LANG == "de":
+        rows = ('[{"headword": "das Fernweh", "pos": "n", "extra": "das Fernweh", "translation": "wanderlust"},'
+                ' {"headword": "Haus", "pos": "n", "extra": "das Haus Häuser", "translation": "house"},'
+                ' {"headword": "die Prokrastination", "pos": "n", "extra": "die -", "translation": "procrastination"}]')
+        entries = D.parse_ai_entries(rows)
+        assert [(e.headword, e.extra, e.plural) for e in entries] == [
+            ("Fernweh", "das", ""), ("Haus", "das Häuser", "Häuser"), ("Prokrastination", "die", "")]
+        assert entries[0].display == "das Fernweh"
+        extra = D.parse_ai_entries('[{"headword": "der Ohrwurm", "pos": "n", "extra": "die Ohrwürmer", "translation": "earworm"}]')[0]
+        assert (extra.extra, extra.plural, extra.display) == ("der Ohrwürmer", "Ohrwürmer", "der Ohrwurm")
+    else:
+        rows = ('[{"headword": "le cafard", "pos": "n", "extra": "m cafard", "translation": "blues"},'
+                ' {"headword": "la nostalgie", "pos": "n", "extra": "f -", "translation": "nostalgia"}]')
+        entries = D.parse_ai_entries(rows)
+        assert [(e.headword, e.extra, e.plural) for e in entries] == [("cafard", "m", ""), ("nostalgie", "f", "")]

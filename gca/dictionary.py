@@ -382,6 +382,13 @@ def _fix_article(head: str, extra: str) -> tuple[str, str]:
             etoks[0] = etoks[0].lower()
         elif gender:
             etoks.insert(0, gender)
+    # The model sometimes repeats the headword in ``extra`` ("das Fernweh") or writes a dash for
+    # "no plural" ("die -"); neither is a plural form.
+    head_norm = C.normalize_search(head)
+    etoks = [t for t in etoks
+             if C.normalize_search(t) != head_norm and t.strip("-–—()") != ""]
+    if C.TARGET_LANG == "de" and etoks:
+        etoks = etoks[:1] + [t for t in etoks[1:] if t.lower() not in arts]   # "der die Ohrwürmer" -> "der Ohrwürmer"
     return head, " ".join(etoks)
 
 
