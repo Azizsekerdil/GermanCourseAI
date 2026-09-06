@@ -21,15 +21,15 @@ os.environ.pop(C.API_KEY_ENV, None)
 # ---------------------------------------------------------------------------
 SAMPLE_ENTRIES = {
     "de": [
-        {"headword": "Brotzeit", "pos": "n", "extra": "die Brotzeiten", "translation": "snack; light meal",
+        {"headword": "Brotzeit", "pos": "n", "extra": "die Brotzeiten", "translation": "snack; light meal", "translation_tr": "ara öğün; hafif yemek",
          "example": "Wir machen jetzt Brotzeit.", "note": "southern German, Bavarian"},
-        {"headword": "der Feierabend", "pos": "noun", "extra": "Feierabende", "translation": "end of the working day",
+        {"headword": "der Feierabend", "pos": "noun", "extra": "Feierabende", "translation": "end of the working day", "translation_tr": "mesai sonu; paydos",
          "example": "Schönen Feierabend!", "note": ""},
     ],
     "fr": [
-        {"headword": "grignotage", "pos": "n", "extra": "m", "translation": "snacking; nibbling",
+        {"headword": "grignotage", "pos": "n", "extra": "m", "translation": "snacking; nibbling", "translation_tr": "atıştırma",
          "example": "Le grignotage entre les repas est fréquent.", "note": "familiar"},
-        {"headword": "la pause", "pos": "noun", "extra": "", "translation": "break; pause",
+        {"headword": "la pause", "pos": "noun", "extra": "", "translation": "break; pause", "translation_tr": "mola; ara",
          "example": "On fait une pause.", "note": ""},
     ],
     "en": [

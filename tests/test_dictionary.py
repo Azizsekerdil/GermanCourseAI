@@ -37,9 +37,9 @@ def test_lookup_both_directions(dic):
     target, other = {
         "de": ("Haus", "house"), "fr": ("maison", "house"), "en": ("house", "ev")}[C.TARGET_LANG]
     direction, rows = dic.lookup(target)
-    assert direction == "target" and rows[0].headword == target
+    assert direction == D.DEFAULT_DIRECTION == f"{C.TARGET_LANG}2{D.OTHER_LANG}" and rows[0].headword == target
     direction, rows = dic.lookup(other)
-    assert direction == "translation" and target in [r.headword for r in rows[:2]]
+    assert direction == f"{D.OTHER_LANG}2{C.TARGET_LANG}" and target in [r.headword for r in rows[:2]]
     assert dic.lookup("")[1] == [] and dic.lookup("zzqqxx")[1] == []
     assert dic.lookup(target.upper())[1][0].headword == target      # case-insensitive
 

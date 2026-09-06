@@ -8,4 +8,4 @@ German Course AI — presentation sources
 - LibriVox public-domain catalog: https://librivox.org/pages/about-librivox/
 - Project Gutenberg permissions: https://www.gutenberg.org/policy/permission.html
 - Deck generator: docs/presentation/generate_presentations.mjs (node; ONLY_DECK=gca builds this deck only)
-- GitHub release (private repo): https://github.com/Azizsekerdil/GermanCourseAI/releases/tag/v1.1.2 (Windows zip + macOS zip; macOS build is Apple Silicon, not notarized)
+- GitHub release (private repo): https://github.com/Azizsekerdil/GermanCourseAI/releases/tag/v1.2.0 (Windows zip + macOS zip; macOS build is Apple Silicon, not notarized)

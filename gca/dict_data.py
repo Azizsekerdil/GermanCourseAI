@@ -1,1300 +1,1303 @@
-"""Built-in German <-> English core dictionary (A1-B1, ~900 entries).
+"""Built-in German <-> English <-> Turkish core dictionary (A1-B1, ~900 entries).
 
-Line format:  headword|pos [article] [plural]|english; english 2[|note]
+Line format:  headword|pos [article] [plural]|english; english 2[|note[|türkçe; türkçe 2]]
 Nouns carry their article and plural in the second field (``n das Häuser``).
 Irregular verb forms go into the optional note field (``ging, ist gegangen``).
+The optional fifth field is the Turkish gloss (senses separated by ``; ``); leave the note field empty
+to add one without a note (``Haus|n das Häuser|house||ev``). Entries without it show "—" in the
+Turkish column until the AI fills the gloss in.
 """
 
 DATA = r"""
 # ---- greetings / politeness ----
-Hallo|int|hello; hi
-Guten Morgen|phr|good morning
-Guten Tag|phr|good day; hello
-Guten Abend|phr|good evening
-Gute Nacht|phr|good night
-Auf Wiedersehen|phr|goodbye
-Tschüss|int|bye
-bis bald|phr|see you soon
-bis später|phr|see you later
-danke|int|thank you; thanks
-vielen Dank|phr|thank you very much
-bitte|part|please; you are welcome
-Entschuldigung|n die Entschuldigungen|excuse me; apology
-es tut mir leid|phr|I am sorry
-ja|part|yes
-nein|part|no
-doch|part|yes (contradicting a negative); but; after all
-gern|adv|gladly; with pleasure
-gerne|adv|gladly; with pleasure
-Willkommen|n das|welcome
-Herzlichen Glückwunsch|phr|congratulations
-Alles Gute|phr|all the best
-Viel Glück|phr|good luck
-Guten Appetit|phr|enjoy your meal
-Gesundheit|n die|health; bless you
-Prost|int|cheers
-Wie geht es dir|phr|how are you (informal)
-Wie geht es Ihnen|phr|how are you (formal)
-Mir geht es gut|phr|I am fine
-Wie heißt du|phr|what is your name (informal)
-Ich heiße|phr|my name is
-Ich komme aus|phr|I come from
-Ich verstehe nicht|phr|I do not understand
-Ich weiß nicht|phr|I do not know
-Wie bitte|phr|pardon; sorry, what?
-Sprechen Sie Englisch|phr|do you speak English
-Können Sie das wiederholen|phr|can you repeat that
-Wie viel kostet das|phr|how much does it cost
-Wo ist|phr|where is
-Ich hätte gern|phr|I would like
-Ich möchte|phr|I would like
+Hallo|int|hello; hi||merhaba; selam
+Guten Morgen|phr|good morning||günaydın
+Guten Tag|phr|good day; hello||iyi günler; merhaba
+Guten Abend|phr|good evening||iyi akşamlar
+Gute Nacht|phr|good night||iyi geceler
+Auf Wiedersehen|phr|goodbye||hoşça kalın; güle güle
+Tschüss|int|bye||hoşça kal; bay bay
+bis bald|phr|see you soon||yakında görüşürüz
+bis später|phr|see you later||sonra görüşürüz
+danke|int|thank you; thanks||teşekkürler; sağ ol
+vielen Dank|phr|thank you very much||çok teşekkür ederim
+bitte|part|please; you are welcome||lütfen; rica ederim
+Entschuldigung|n die Entschuldigungen|excuse me; apology||affedersiniz; özür
+es tut mir leid|phr|I am sorry||üzgünüm; özür dilerim
+ja|part|yes||evet
+nein|part|no||hayır
+doch|part|yes (contradicting a negative); but; after all||evet (olumsuz soruya yanıt); yine de; ama
+gern|adv|gladly; with pleasure||seve seve; memnuniyetle
+gerne|adv|gladly; with pleasure||seve seve; memnuniyetle
+Willkommen|n das|welcome||hoş geldiniz
+Herzlichen Glückwunsch|phr|congratulations||tebrikler
+Alles Gute|phr|all the best||her şey gönlünce olsun; iyi dileklerimle
+Viel Glück|phr|good luck||bol şans; iyi şanslar
+Guten Appetit|phr|enjoy your meal||afiyet olsun
+Gesundheit|n die|health; bless you||sağlık; çok yaşa
+Prost|int|cheers||şerefe
+Wie geht es dir|phr|how are you (informal)||nasılsın
+Wie geht es Ihnen|phr|how are you (formal)||nasılsınız
+Mir geht es gut|phr|I am fine||iyiyim
+Wie heißt du|phr|what is your name (informal)||adın ne
+Ich heiße|phr|my name is||benim adım
+Ich komme aus|phr|I come from||ben ...'dan geliyorum; ...'lıyım
+Ich verstehe nicht|phr|I do not understand||anlamıyorum
+Ich weiß nicht|phr|I do not know||bilmiyorum
+Wie bitte|phr|pardon; sorry, what?||efendim; pardon
+Sprechen Sie Englisch|phr|do you speak English||İngilizce biliyor musunuz
+Können Sie das wiederholen|phr|can you repeat that||tekrar edebilir misiniz
+Wie viel kostet das|phr|how much does it cost||bu ne kadar; bunun fiyatı ne
+Wo ist|phr|where is||nerede
+Ich hätte gern|phr|I would like||... istiyorum; ... rica ediyorum
+Ich möchte|phr|I would like||istiyorum; isterim
 # ---- question words ----
-wer|pron|who
-was|pron|what
-wo|adv|where
-wohin|adv|where to
-woher|adv|where from
-wann|adv|when
-warum|adv|why
-wieso|adv|why; how come
-wie|adv|how
-welcher|pron|which
-wessen|pron|whose
-wie viel|phr|how much
-wie viele|phr|how many
+wer|pron|who||kim
+was|pron|what||ne
+wo|adv|where||nerede
+wohin|adv|where to||nereye
+woher|adv|where from||nereden
+wann|adv|when||ne zaman
+warum|adv|why||neden; niçin
+wieso|adv|why; how come||neden; nasıl olur
+wie|adv|how||nasıl
+welcher|pron|which||hangi
+wessen|pron|whose||kimin
+wie viel|phr|how much||ne kadar
+wie viele|phr|how many||kaç tane; kaç
 # ---- pronouns / articles ----
-ich|pron|I
-du|pron|you (singular, informal)
-er|pron|he
-sie|pron|she; they; you (formal, capitalised)
-es|pron|it
-wir|pron|we
-ihr|pron|you (plural, informal); her; their
-Sie|pron|you (formal)
-mich|pron|me (accusative)
-mir|pron|me (dative)
-dich|pron|you (accusative)
-dir|pron|you (dative)
-ihn|pron|him
-ihm|pron|him; it (dative)
-uns|pron|us
-euch|pron|you (plural, object)
-ihnen|pron|them (dative)
-mein|pron|my
-dein|pron|your (informal)
-sein|pron|his; its
-unser|pron|our
-euer|pron|your (plural)
-Ihr|pron|your (formal)
-der|art|the (masculine)
-die|art|the (feminine; plural)
-das|art|the (neuter)
-ein|art|a; an (masculine, neuter)
-eine|art|a; an (feminine)
-kein|pron|no; not a; none
-dieser|pron|this
-jener|pron|that
-jeder|pron|each; every
-alle|pron|all; everyone
-alles|pron|everything
-etwas|pron|something; some
-nichts|pron|nothing
-jemand|pron|someone
-niemand|pron|nobody
-man|pron|one; you; people (impersonal)
-sich|pron|oneself; himself; herself; themselves
-selbst|pron|self; myself; even
-einander|pron|each other
+ich|pron|I||ben
+du|pron|you (singular, informal)||sen
+er|pron|he||o (erkek)
+sie|pron|she; they; you (formal, capitalised)||o (kadın); onlar; siz
+es|pron|it||o (nesne)
+wir|pron|we||biz
+ihr|pron|you (plural, informal); her; their||siz; onun (kadın); onların
+Sie|pron|you (formal)||siz (resmî)
+mich|pron|me (accusative)||beni
+mir|pron|me (dative)||bana
+dich|pron|you (accusative)||seni
+dir|pron|you (dative)||sana
+ihn|pron|him||onu (erkek)
+ihm|pron|him; it (dative)||ona (erkek, nesne)
+uns|pron|us||bizi; bize
+euch|pron|you (plural, object)||sizi; size
+ihnen|pron|them (dative)||onlara
+mein|pron|my||benim
+dein|pron|your (informal)||senin
+sein|pron|his; its||onun (erkek, nesne)
+unser|pron|our||bizim
+euer|pron|your (plural)||sizin
+Ihr|pron|your (formal)||sizin (resmî)
+der|art|the (masculine)||belirli tanımlık (eril)
+die|art|the (feminine; plural)||belirli tanımlık (dişil; çoğul)
+das|art|the (neuter)||belirli tanımlık (nötr)
+ein|art|a; an (masculine, neuter)||bir (eril, nötr)
+eine|art|a; an (feminine)||bir (dişil)
+kein|pron|no; not a; none||hiç; hiçbir
+dieser|pron|this||bu
+jener|pron|that||şu; o
+jeder|pron|each; every||her; her biri
+alle|pron|all; everyone||hepsi; herkes
+alles|pron|everything||her şey
+etwas|pron|something; some||bir şey; biraz
+nichts|pron|nothing||hiçbir şey
+jemand|pron|someone||birisi; biri
+niemand|pron|nobody||hiç kimse
+man|pron|one; you; people (impersonal)||insan; kişi (genel özne)
+sich|pron|oneself; himself; herself; themselves||kendini; kendisi
+selbst|pron|self; myself; even||kendi; bizzat; hatta
+einander|pron|each other||birbirini; birbirine
 # ---- numbers ----
-null|num|zero
-eins|num|one
-zwei|num|two
-drei|num|three
-vier|num|four
-fünf|num|five
-sechs|num|six
-sieben|num|seven
-acht|num|eight
-neun|num|nine
-zehn|num|ten
-elf|num|eleven
-zwölf|num|twelve
-dreizehn|num|thirteen
-vierzehn|num|fourteen
-fünfzehn|num|fifteen
-sechzehn|num|sixteen
-siebzehn|num|seventeen
-achtzehn|num|eighteen
-neunzehn|num|nineteen
-zwanzig|num|twenty
-einundzwanzig|num|twenty-one
-dreißig|num|thirty
-vierzig|num|forty
-fünfzig|num|fifty
-sechzig|num|sixty
-siebzig|num|seventy
-achtzig|num|eighty
-neunzig|num|ninety
-hundert|num|hundred
-tausend|num|thousand
-Million|n die Millionen|million
-erste|num|first
-zweite|num|second
-dritte|num|third
-letzte|adj|last
-Hälfte|n die Hälften|half
-halb|adj|half
-Mal|n das Male|time (occasion)
-einmal|adv|once
-zweimal|adv|twice
-viel|adv|much; a lot
-viele|pron|many
-wenig|adv|little; few
-einige|pron|some; several
-ein paar|phr|a few; a couple of
-ein bisschen|phr|a little; a bit
+null|num|zero||sıfır
+eins|num|one||bir
+zwei|num|two||iki
+drei|num|three||üç
+vier|num|four||dört
+fünf|num|five||beş
+sechs|num|six||altı
+sieben|num|seven||yedi
+acht|num|eight||sekiz
+neun|num|nine||dokuz
+zehn|num|ten||on
+elf|num|eleven||on bir
+zwölf|num|twelve||on iki
+dreizehn|num|thirteen||on üç
+vierzehn|num|fourteen||on dört
+fünfzehn|num|fifteen||on beş
+sechzehn|num|sixteen||on altı
+siebzehn|num|seventeen||on yedi
+achtzehn|num|eighteen||on sekiz
+neunzehn|num|nineteen||on dokuz
+zwanzig|num|twenty||yirmi
+einundzwanzig|num|twenty-one||yirmi bir
+dreißig|num|thirty||otuz
+vierzig|num|forty||kırk
+fünfzig|num|fifty||elli
+sechzig|num|sixty||altmış
+siebzig|num|seventy||yetmiş
+achtzig|num|eighty||seksen
+neunzig|num|ninety||doksan
+hundert|num|hundred||yüz
+tausend|num|thousand||bin
+Million|n die Millionen|million||milyon
+erste|num|first||birinci; ilk
+zweite|num|second||ikinci
+dritte|num|third||üçüncü
+letzte|adj|last||son; sonuncu
+Hälfte|n die Hälften|half||yarı; yarım
+halb|adj|half||yarım; yarı
+Mal|n das Male|time (occasion)||kez; defa
+einmal|adv|once||bir kez; bir zamanlar
+zweimal|adv|twice||iki kez
+viel|adv|much; a lot||çok
+viele|pron|many||birçok; çok
+wenig|adv|little; few||az
+einige|pron|some; several||bazı; birkaç
+ein paar|phr|a few; a couple of||birkaç
+ein bisschen|phr|a little; a bit||biraz; azıcık
 # ---- time ----
-Zeit|n die Zeiten|time
-Uhr|n die Uhren|clock; watch; o'clock
-Stunde|n die Stunden|hour; lesson
-Minute|n die Minuten|minute
-Sekunde|n die Sekunden|second
-Tag|n der Tage|day
-Nacht|n die Nächte|night
-Morgen|n der Morgen|morning
-Vormittag|n der Vormittage|late morning
-Mittag|n der Mittage|noon; midday
-Nachmittag|n der Nachmittage|afternoon
-Abend|n der Abende|evening
-Woche|n die Wochen|week
-Wochenende|n das Wochenenden|weekend
-Monat|n der Monate|month
-Jahr|n das Jahre|year
-Jahrhundert|n das Jahrhunderte|century
-heute|adv|today
-morgen|adv|tomorrow
-gestern|adv|yesterday
-übermorgen|adv|the day after tomorrow
-vorgestern|adv|the day before yesterday
-jetzt|adv|now
-gleich|adv|right away; in a moment; same
-sofort|adv|immediately
-bald|adv|soon
-später|adv|later
-früher|adv|earlier; formerly
-früh|adv|early
-spät|adv|late
-immer|adv|always
-nie|adv|never
-niemals|adv|never
-manchmal|adv|sometimes
-oft|adv|often
-selten|adv|rarely
-meistens|adv|mostly; usually
-schon|adv|already
-noch|adv|still; yet
-noch nicht|phr|not yet
-wieder|adv|again
-zuerst|adv|first; at first
-dann|adv|then
-danach|adv|after that
-zuletzt|adv|last; finally
-endlich|adv|finally; at last
-plötzlich|adv|suddenly
-lange|adv|for a long time
-kurz|adv|briefly; short
-Montag|n der Montage|Monday
-Dienstag|n der Dienstage|Tuesday
-Mittwoch|n der Mittwoche|Wednesday
-Donnerstag|n der Donnerstage|Thursday
-Freitag|n der Freitage|Friday
-Samstag|n der Samstage|Saturday
-Sonntag|n der Sonntage|Sunday
-Januar|n der Januare|January
-Februar|n der Februare|February
-März|n der Märze|March
-April|n der Aprile|April
-Mai|n der Maie|May
-Juni|n der Junis|June
-Juli|n der Julis|July
-August|n der Auguste|August
-September|n der September|September
-Oktober|n der Oktober|October
-November|n der November|November
-Dezember|n der Dezember|December
-Frühling|n der Frühlinge|spring
-Sommer|n der Sommer|summer
-Herbst|n der Herbste|autumn; fall
-Winter|n der Winter|winter
-Feiertag|n der Feiertage|public holiday
-Urlaub|n der Urlaube|vacation; holiday
-Ferien|n die|school holidays
-Geburtstag|n der Geburtstage|birthday
-Termin|n der Termine|appointment; date; deadline
-Kalender|n der Kalender|calendar
-Datum|n das Daten|date
+Zeit|n die Zeiten|time||zaman; vakit
+Uhr|n die Uhren|clock; watch; o'clock||saat
+Stunde|n die Stunden|hour; lesson||saat; ders
+Minute|n die Minuten|minute||dakika
+Sekunde|n die Sekunden|second||saniye
+Tag|n der Tage|day||gün
+Nacht|n die Nächte|night||gece
+Morgen|n der Morgen|morning||sabah
+Vormittag|n der Vormittage|late morning||öğleden önce; kuşluk vakti
+Mittag|n der Mittage|noon; midday||öğle
+Nachmittag|n der Nachmittage|afternoon||öğleden sonra
+Abend|n der Abende|evening||akşam
+Woche|n die Wochen|week||hafta
+Wochenende|n das Wochenenden|weekend||hafta sonu
+Monat|n der Monate|month||ay
+Jahr|n das Jahre|year||yıl; sene
+Jahrhundert|n das Jahrhunderte|century||yüzyıl
+heute|adv|today||bugün
+morgen|adv|tomorrow||yarın
+gestern|adv|yesterday||dün
+übermorgen|adv|the day after tomorrow||öbür gün
+vorgestern|adv|the day before yesterday||evvelsi gün
+jetzt|adv|now||şimdi
+gleich|adv|right away; in a moment; same||hemen; birazdan; aynı
+sofort|adv|immediately||derhal; hemen
+bald|adv|soon||yakında
+später|adv|later||sonra; daha sonra
+früher|adv|earlier; formerly||daha önce; eskiden
+früh|adv|early||erken
+spät|adv|late||geç
+immer|adv|always||her zaman; daima
+nie|adv|never||asla; hiç
+niemals|adv|never||asla; hiçbir zaman
+manchmal|adv|sometimes||bazen
+oft|adv|often||sık sık; çoğu zaman
+selten|adv|rarely||nadiren; seyrek
+meistens|adv|mostly; usually||çoğunlukla; genellikle
+schon|adv|already||zaten; çoktan
+noch|adv|still; yet||hâlâ; henüz; daha
+noch nicht|phr|not yet||henüz değil
+wieder|adv|again||yine; tekrar
+zuerst|adv|first; at first||önce; ilk önce
+dann|adv|then||sonra; o zaman
+danach|adv|after that||ondan sonra; ardından
+zuletzt|adv|last; finally||en son; sonunda
+endlich|adv|finally; at last||nihayet; sonunda
+plötzlich|adv|suddenly||aniden; birdenbire
+lange|adv|for a long time||uzun süre
+kurz|adv|briefly; short||kısaca; kısa
+Montag|n der Montage|Monday||pazartesi
+Dienstag|n der Dienstage|Tuesday||salı
+Mittwoch|n der Mittwoche|Wednesday||çarşamba
+Donnerstag|n der Donnerstage|Thursday||perşembe
+Freitag|n der Freitage|Friday||cuma
+Samstag|n der Samstage|Saturday||cumartesi
+Sonntag|n der Sonntage|Sunday||pazar
+Januar|n der Januare|January||ocak
+Februar|n der Februare|February||şubat
+März|n der Märze|March||mart
+April|n der Aprile|April||nisan
+Mai|n der Maie|May||mayıs
+Juni|n der Junis|June||haziran
+Juli|n der Julis|July||temmuz
+August|n der Auguste|August||ağustos
+September|n der September|September||eylül
+Oktober|n der Oktober|October||ekim
+November|n der November|November||kasım
+Dezember|n der Dezember|December||aralık
+Frühling|n der Frühlinge|spring||ilkbahar; bahar
+Sommer|n der Sommer|summer||yaz
+Herbst|n der Herbste|autumn; fall||sonbahar; güz
+Winter|n der Winter|winter||kış
+Feiertag|n der Feiertage|public holiday||resmî tatil; bayram günü
+Urlaub|n der Urlaube|vacation; holiday||tatil; izin
+Ferien|n die|school holidays||okul tatili; tatil
+Geburtstag|n der Geburtstage|birthday||doğum günü
+Termin|n der Termine|appointment; date; deadline||randevu; son tarih
+Kalender|n der Kalender|calendar||takvim
+Datum|n das Daten|date||tarih
 # ---- family / people ----
-Mensch|n der Menschen|human; person
-Leute|n die|people
-Mann|n der Männer|man; husband
-Frau|n die Frauen|woman; wife; Mrs
-Kind|n das Kinder|child
-Junge|n der Jungen|boy
-Mädchen|n das Mädchen|girl
-Baby|n das Babys|baby
-Familie|n die Familien|family
-Eltern|n die|parents
-Mutter|n die Mütter|mother
-Vater|n der Väter|father
-Mama|n die Mamas|mom
-Papa|n der Papas|dad
-Sohn|n der Söhne|son
-Tochter|n die Töchter|daughter
-Bruder|n der Brüder|brother
-Schwester|n die Schwestern|sister
-Geschwister|n die|siblings
-Großmutter|n die Großmütter|grandmother
-Großvater|n der Großväter|grandfather
-Oma|n die Omas|grandma
-Opa|n der Opas|grandpa
-Enkel|n der Enkel|grandson; grandchild
-Onkel|n der Onkel|uncle
-Tante|n die Tanten|aunt
-Cousin|n der Cousins|cousin (male)
-Cousine|n die Cousinen|cousin (female)
-Ehemann|n der Ehemänner|husband
-Ehefrau|n die Ehefrauen|wife
-Freund|n der Freunde|friend; boyfriend
-Freundin|n die Freundinnen|friend (female); girlfriend
-Nachbar|n der Nachbarn|neighbour
-Gast|n der Gäste|guest
-Kollege|n der Kollegen|colleague
-Chef|n der Chefs|boss
-Herr|n der Herren|Mr; gentleman; lord
-Name|n der Namen|name
-Vorname|n der Vornamen|first name
-Nachname|n der Nachnamen|surname
-Alter|n das|age
-Erwachsene|n der Erwachsenen|adult
-Jugendliche|n der Jugendlichen|teenager; young person
-Person|n die Personen|person
-Bevölkerung|n die|population
+Mensch|n der Menschen|human; person||insan; kişi
+Leute|n die|people||insanlar; halk
+Mann|n der Männer|man; husband||adam; erkek; koca
+Frau|n die Frauen|woman; wife; Mrs||kadın; eş (karı); hanım
+Kind|n das Kinder|child||çocuk
+Junge|n der Jungen|boy||oğlan; erkek çocuk
+Mädchen|n das Mädchen|girl||kız
+Baby|n das Babys|baby||bebek
+Familie|n die Familien|family||aile
+Eltern|n die|parents||anne baba; ebeveynler
+Mutter|n die Mütter|mother||anne
+Vater|n der Väter|father||baba
+Mama|n die Mamas|mom||anne; anneciğim
+Papa|n der Papas|dad||baba; babacığım
+Sohn|n der Söhne|son||oğul
+Tochter|n die Töchter|daughter||kız (evlat)
+Bruder|n der Brüder|brother||erkek kardeş; ağabey
+Schwester|n die Schwestern|sister||kız kardeş; abla
+Geschwister|n die|siblings||kardeşler
+Großmutter|n die Großmütter|grandmother||büyükanne; nine
+Großvater|n der Großväter|grandfather||büyükbaba; dede
+Oma|n die Omas|grandma||nine; babaanne; anneanne
+Opa|n der Opas|grandpa||dede
+Enkel|n der Enkel|grandson; grandchild||torun
+Onkel|n der Onkel|uncle||amca; dayı; enişte
+Tante|n die Tanten|aunt||teyze; hala; yenge
+Cousin|n der Cousins|cousin (male)||kuzen (erkek)
+Cousine|n die Cousinen|cousin (female)||kuzen (kız)
+Ehemann|n der Ehemänner|husband||koca; eş
+Ehefrau|n die Ehefrauen|wife||karı; eş
+Freund|n der Freunde|friend; boyfriend||arkadaş; erkek arkadaş
+Freundin|n die Freundinnen|friend (female); girlfriend||arkadaş (kadın); kız arkadaş
+Nachbar|n der Nachbarn|neighbour||komşu
+Gast|n der Gäste|guest||misafir; konuk
+Kollege|n der Kollegen|colleague||meslektaş; iş arkadaşı
+Chef|n der Chefs|boss||patron; şef
+Herr|n der Herren|Mr; gentleman; lord||bay; beyefendi; efendi
+Name|n der Namen|name||ad; isim
+Vorname|n der Vornamen|first name||ad; ön ad
+Nachname|n der Nachnamen|surname||soyadı
+Alter|n das|age||yaş
+Erwachsene|n der Erwachsenen|adult||yetişkin
+Jugendliche|n der Jugendlichen|teenager; young person||genç; ergen
+Person|n die Personen|person||kişi; şahıs
+Bevölkerung|n die|population||nüfus
 # ---- jobs ----
-Arbeit|n die Arbeiten|work; job
-Beruf|n der Berufe|profession; occupation
-Arzt|n der Ärzte|doctor (male)
-Ärztin|n die Ärztinnen|doctor (female)
-Lehrer|n der Lehrer|teacher
-Lehrerin|n die Lehrerinnen|teacher (female)
-Schüler|n der Schüler|pupil; student (school)
-Student|n der Studenten|student (university)
-Ingenieur|n der Ingenieure|engineer
-Programmierer|n der Programmierer|programmer
-Verkäufer|n der Verkäufer|shop assistant; salesman
-Koch|n der Köche|cook; chef
-Kellner|n der Kellner|waiter
-Fahrer|n der Fahrer|driver
-Polizist|n der Polizisten|police officer
-Journalist|n der Journalisten|journalist
-Künstler|n der Künstler|artist
-Musiker|n der Musiker|musician
-Schauspieler|n der Schauspieler|actor
-Schriftsteller|n der Schriftsteller|writer
-Anwalt|n der Anwälte|lawyer
-Bäcker|n der Bäcker|baker
-Friseur|n der Friseure|hairdresser
-Krankenschwester|n die Krankenschwestern|nurse
-Krankenpfleger|n der Krankenpfleger|nurse (male)
-Handwerker|n der Handwerker|craftsman
-Mechaniker|n der Mechaniker|mechanic
-Sekretärin|n die Sekretärinnen|secretary
-Beamte|n der Beamten|civil servant
-Unternehmer|n der Unternehmer|entrepreneur
-Wissenschaftler|n der Wissenschaftler|scientist
-Übersetzer|n der Übersetzer|translator
-Firma|n die Firmen|company; firm
-Unternehmen|n das Unternehmen|company; enterprise
-Büro|n das Büros|office
-Fabrik|n die Fabriken|factory
-Gehalt|n das Gehälter|salary
-Lohn|n der Löhne|wage
-Kunde|n der Kunden|customer
-Besprechung|n die Besprechungen|meeting
-Vertrag|n der Verträge|contract
-Bewerbung|n die Bewerbungen|application (job)
-Lebenslauf|n der Lebensläufe|CV; résumé
-Stelle|n die Stellen|position; job; place
-arbeitslos|adj|unemployed
-Karriere|n die Karrieren|career
+Arbeit|n die Arbeiten|work; job||iş; çalışma
+Beruf|n der Berufe|profession; occupation||meslek
+Arzt|n der Ärzte|doctor (male)||doktor (erkek); hekim
+Ärztin|n die Ärztinnen|doctor (female)||doktor (kadın); hekim
+Lehrer|n der Lehrer|teacher||öğretmen
+Lehrerin|n die Lehrerinnen|teacher (female)||öğretmen (kadın)
+Schüler|n der Schüler|pupil; student (school)||öğrenci (okul)
+Student|n der Studenten|student (university)||öğrenci (üniversite)
+Ingenieur|n der Ingenieure|engineer||mühendis
+Programmierer|n der Programmierer|programmer||programcı
+Verkäufer|n der Verkäufer|shop assistant; salesman||satıcı; tezgâhtar
+Koch|n der Köche|cook; chef||aşçı
+Kellner|n der Kellner|waiter||garson
+Fahrer|n der Fahrer|driver||sürücü; şoför
+Polizist|n der Polizisten|police officer||polis; polis memuru
+Journalist|n der Journalisten|journalist||gazeteci
+Künstler|n der Künstler|artist||sanatçı
+Musiker|n der Musiker|musician||müzisyen
+Schauspieler|n der Schauspieler|actor||oyuncu; aktör
+Schriftsteller|n der Schriftsteller|writer||yazar
+Anwalt|n der Anwälte|lawyer||avukat
+Bäcker|n der Bäcker|baker||fırıncı
+Friseur|n der Friseure|hairdresser||kuaför; berber
+Krankenschwester|n die Krankenschwestern|nurse||hemşire
+Krankenpfleger|n der Krankenpfleger|nurse (male)||hemşire (erkek); hastabakıcı
+Handwerker|n der Handwerker|craftsman||zanaatkâr; usta
+Mechaniker|n der Mechaniker|mechanic||tamirci; mekanisyen
+Sekretärin|n die Sekretärinnen|secretary||sekreter (kadın)
+Beamte|n der Beamten|civil servant||memur; devlet memuru
+Unternehmer|n der Unternehmer|entrepreneur||girişimci; iş insanı
+Wissenschaftler|n der Wissenschaftler|scientist||bilim insanı
+Übersetzer|n der Übersetzer|translator||çevirmen; tercüman
+Firma|n die Firmen|company; firm||firma; şirket
+Unternehmen|n das Unternehmen|company; enterprise||şirket; işletme
+Büro|n das Büros|office||ofis; büro
+Fabrik|n die Fabriken|factory||fabrika
+Gehalt|n das Gehälter|salary||maaş
+Lohn|n der Löhne|wage||ücret; yevmiye
+Kunde|n der Kunden|customer||müşteri
+Besprechung|n die Besprechungen|meeting||toplantı; görüşme
+Vertrag|n der Verträge|contract||sözleşme; kontrat
+Bewerbung|n die Bewerbungen|application (job)||iş başvurusu; başvuru
+Lebenslauf|n der Lebensläufe|CV; résumé||özgeçmiş
+Stelle|n die Stellen|position; job; place||iş; kadro; yer
+arbeitslos|adj|unemployed||işsiz
+Karriere|n die Karrieren|career||kariyer
 # ---- home ----
-Haus|n das Häuser|house
-Wohnung|n die Wohnungen|flat; apartment
-Zimmer|n das Zimmer|room
-Küche|n die Küchen|kitchen
-Schlafzimmer|n das Schlafzimmer|bedroom
-Wohnzimmer|n das Wohnzimmer|living room
-Badezimmer|n das Badezimmer|bathroom
-Bad|n das Bäder|bath; bathroom
-Toilette|n die Toiletten|toilet
-Flur|n der Flure|hallway; corridor
-Balkon|n der Balkone|balcony
-Garten|n der Gärten|garden
-Keller|n der Keller|cellar; basement
-Dach|n das Dächer|roof
-Stock|n der Stockwerke|floor; storey
-Treppe|n die Treppen|stairs
-Aufzug|n der Aufzüge|lift; elevator
-Tür|n die Türen|door
-Fenster|n das Fenster|window
-Wand|n die Wände|wall (interior)
-Boden|n der Böden|floor; ground; soil
-Decke|n die Decken|ceiling; blanket
-Möbel|n die|furniture
-Tisch|n der Tische|table
-Stuhl|n der Stühle|chair
-Sessel|n der Sessel|armchair
-Sofa|n das Sofas|sofa
-Bett|n das Betten|bed
-Schrank|n der Schränke|cupboard; wardrobe
-Regal|n das Regale|shelf
-Spiegel|n der Spiegel|mirror
-Lampe|n die Lampen|lamp
-Licht|n das Lichter|light
-Teppich|n der Teppiche|carpet
-Bild|n das Bilder|picture; image
-Kühlschrank|n der Kühlschränke|fridge
-Herd|n der Herde|stove; cooker
-Ofen|n der Öfen|oven
-Waschmaschine|n die Waschmaschinen|washing machine
-Fernseher|n der Fernseher|television set
-Schlüssel|n der Schlüssel|key
-Müll|n der|rubbish; garbage
-Miete|n die Mieten|rent
-Nachbarschaft|n die Nachbarschaften|neighbourhood
-aufräumen|v|to tidy up
-putzen|v|to clean
-waschen|v|to wash|wusch, gewaschen
-kochen|v|to cook; to boil
-wohnen|v|to live; to reside
-umziehen|v|to move (house)|zog um, ist umgezogen
-mieten|v|to rent
+Haus|n das Häuser|house||ev
+Wohnung|n die Wohnungen|flat; apartment||daire; apartman dairesi
+Zimmer|n das Zimmer|room||oda
+Küche|n die Küchen|kitchen||mutfak
+Schlafzimmer|n das Schlafzimmer|bedroom||yatak odası
+Wohnzimmer|n das Wohnzimmer|living room||oturma odası; salon
+Badezimmer|n das Badezimmer|bathroom||banyo
+Bad|n das Bäder|bath; bathroom||banyo
+Toilette|n die Toiletten|toilet||tuvalet
+Flur|n der Flure|hallway; corridor||koridor; hol
+Balkon|n der Balkone|balcony||balkon
+Garten|n der Gärten|garden||bahçe
+Keller|n der Keller|cellar; basement||bodrum; kiler
+Dach|n das Dächer|roof||çatı
+Stock|n der Stockwerke|floor; storey||kat
+Treppe|n die Treppen|stairs||merdiven
+Aufzug|n der Aufzüge|lift; elevator||asansör
+Tür|n die Türen|door||kapı
+Fenster|n das Fenster|window||pencere
+Wand|n die Wände|wall (interior)||duvar
+Boden|n der Böden|floor; ground; soil||zemin; yer; toprak
+Decke|n die Decken|ceiling; blanket||tavan; battaniye
+Möbel|n die|furniture||mobilya
+Tisch|n der Tische|table||masa
+Stuhl|n der Stühle|chair||sandalye
+Sessel|n der Sessel|armchair||koltuk
+Sofa|n das Sofas|sofa||kanepe
+Bett|n das Betten|bed||yatak
+Schrank|n der Schränke|cupboard; wardrobe||dolap; gardırop
+Regal|n das Regale|shelf||raf
+Spiegel|n der Spiegel|mirror||ayna
+Lampe|n die Lampen|lamp||lamba
+Licht|n das Lichter|light||ışık
+Teppich|n der Teppiche|carpet||halı
+Bild|n das Bilder|picture; image||resim; görüntü
+Kühlschrank|n der Kühlschränke|fridge||buzdolabı
+Herd|n der Herde|stove; cooker||ocak
+Ofen|n der Öfen|oven||fırın; soba
+Waschmaschine|n die Waschmaschinen|washing machine||çamaşır makinesi
+Fernseher|n der Fernseher|television set||televizyon
+Schlüssel|n der Schlüssel|key||anahtar
+Müll|n der|rubbish; garbage||çöp
+Miete|n die Mieten|rent||kira
+Nachbarschaft|n die Nachbarschaften|neighbourhood||mahalle; komşuluk
+aufräumen|v|to tidy up||toplamak; düzenlemek
+putzen|v|to clean||temizlemek
+waschen|v|to wash|wusch, gewaschen|yıkamak
+kochen|v|to cook; to boil||yemek pişirmek; kaynatmak
+wohnen|v|to live; to reside||oturmak; ikamet etmek
+umziehen|v|to move (house)|zog um, ist umgezogen|taşınmak
+mieten|v|to rent||kiralamak
 # ---- everyday objects ----
-Ding|n das Dinge|thing
-Sache|n die Sachen|thing; matter
-Tasche|n die Taschen|bag; pocket
-Rucksack|n der Rucksäcke|backpack
-Koffer|n der Koffer|suitcase
-Geldbörse|n die Geldbörsen|wallet; purse
-Geld|n das|money
-Handy|n das Handys|mobile phone
-Telefon|n das Telefone|telephone
-Computer|n der Computer|computer
-Laptop|n der Laptops|laptop
-Brille|n die Brillen|glasses
-Regenschirm|n der Regenschirme|umbrella
-Buch|n das Bücher|book
-Heft|n das Hefte|exercise book; notebook
-Stift|n der Stifte|pen; pencil
-Kugelschreiber|n der Kugelschreiber|ballpoint pen
-Bleistift|n der Bleistifte|pencil
-Papier|n das Papiere|paper
-Brief|n der Briefe|letter (mail)
-Zeitung|n die Zeitungen|newspaper
-Zeitschrift|n die Zeitschriften|magazine
-Foto|n das Fotos|photo
-Geschenk|n das Geschenke|present; gift
-Spielzeug|n das Spielzeuge|toy
-Ball|n der Bälle|ball
-Karte|n die Karten|card; map; ticket
-Schachtel|n die Schachteln|box (small)
-Kiste|n die Kisten|crate; box
-Flasche|n die Flaschen|bottle
+Ding|n das Dinge|thing||şey; nesne
+Sache|n die Sachen|thing; matter||şey; mesele
+Tasche|n die Taschen|bag; pocket||çanta; cep
+Rucksack|n der Rucksäcke|backpack||sırt çantası
+Koffer|n der Koffer|suitcase||bavul; valiz
+Geldbörse|n die Geldbörsen|wallet; purse||cüzdan
+Geld|n das|money||para
+Handy|n das Handys|mobile phone||cep telefonu
+Telefon|n das Telefone|telephone||telefon
+Computer|n der Computer|computer||bilgisayar
+Laptop|n der Laptops|laptop||dizüstü bilgisayar; laptop
+Brille|n die Brillen|glasses||gözlük
+Regenschirm|n der Regenschirme|umbrella||şemsiye
+Buch|n das Bücher|book||kitap
+Heft|n das Hefte|exercise book; notebook||defter
+Stift|n der Stifte|pen; pencil||kalem
+Kugelschreiber|n der Kugelschreiber|ballpoint pen||tükenmez kalem
+Bleistift|n der Bleistifte|pencil||kurşun kalem
+Papier|n das Papiere|paper||kâğıt
+Brief|n der Briefe|letter (mail)||mektup
+Zeitung|n die Zeitungen|newspaper||gazete
+Zeitschrift|n die Zeitschriften|magazine||dergi
+Foto|n das Fotos|photo||fotoğraf
+Geschenk|n das Geschenke|present; gift||hediye; armağan
+Spielzeug|n das Spielzeuge|toy||oyuncak
+Ball|n der Bälle|ball||top
+Karte|n die Karten|card; map; ticket||kart; harita; bilet
+Schachtel|n die Schachteln|box (small)||kutu (küçük)
+Kiste|n die Kisten|crate; box||sandık; kasa
+Flasche|n die Flaschen|bottle||şişe
 # ---- clothing ----
-Kleidung|n die|clothing
-Kleid|n das Kleider|dress
-Hemd|n das Hemden|shirt
-T-Shirt|n das T-Shirts|T-shirt
-Hose|n die Hosen|trousers; pants
-Jeans|n die Jeans|jeans
-Rock|n der Röcke|skirt
-Mantel|n der Mäntel|coat
-Jacke|n die Jacken|jacket
-Anzug|n der Anzüge|suit
-Pullover|n der Pullover|sweater
-Mütze|n die Mützen|cap; beanie
-Hut|n der Hüte|hat
-Schal|n der Schals|scarf
-Handschuh|n der Handschuhe|glove
-Socke|n die Socken|sock
-Schuh|n der Schuhe|shoe
-Stiefel|n der Stiefel|boot
-Turnschuh|n der Turnschuhe|sneaker
-Größe|n die Größen|size
-anziehen|v|to put on (clothes); to attract|zog an, angezogen
-ausziehen|v|to take off (clothes); to move out|zog aus, ausgezogen
-tragen|v|to wear; to carry|trug, getragen
-anprobieren|v|to try on
+Kleidung|n die|clothing||giysi; kıyafet
+Kleid|n das Kleider|dress||elbise
+Hemd|n das Hemden|shirt||gömlek
+T-Shirt|n das T-Shirts|T-shirt||tişört
+Hose|n die Hosen|trousers; pants||pantolon
+Jeans|n die Jeans|jeans||kot pantolon; jean
+Rock|n der Röcke|skirt||etek
+Mantel|n der Mäntel|coat||palto; manto
+Jacke|n die Jacken|jacket||ceket; mont
+Anzug|n der Anzüge|suit||takım elbise
+Pullover|n der Pullover|sweater||kazak
+Mütze|n die Mützen|cap; beanie||bere; kasket
+Hut|n der Hüte|hat||şapka
+Schal|n der Schals|scarf||atkı; şal
+Handschuh|n der Handschuhe|glove||eldiven
+Socke|n die Socken|sock||çorap
+Schuh|n der Schuhe|shoe||ayakkabı
+Stiefel|n der Stiefel|boot||çizme; bot
+Turnschuh|n der Turnschuhe|sneaker||spor ayakkabı
+Größe|n die Größen|size||beden; boyut; büyüklük
+anziehen|v|to put on (clothes); to attract|zog an, angezogen|giymek; çekmek (cezbetmek)
+ausziehen|v|to take off (clothes); to move out|zog aus, ausgezogen|çıkarmak (giysi); taşınmak (evden)
+tragen|v|to wear; to carry|trug, getragen|giymek; taşımak
+anprobieren|v|to try on||denemek (giysi); prova etmek
 # ---- body / health ----
-Körper|n der Körper|body
-Kopf|n der Köpfe|head
-Gesicht|n das Gesichter|face
-Auge|n das Augen|eye
-Ohr|n das Ohren|ear
-Nase|n die Nasen|nose
-Mund|n der Münder|mouth
-Zahn|n der Zähne|tooth
-Haar|n das Haare|hair
-Hals|n der Hälse|neck; throat
-Schulter|n die Schultern|shoulder
-Arm|n der Arme|arm
-Hand|n die Hände|hand
-Finger|n der Finger|finger
-Bein|n das Beine|leg
-Fuß|n der Füße|foot
-Knie|n das Knie|knee
-Rücken|n der Rücken|back
-Bauch|n der Bäuche|belly; stomach
-Herz|n das Herzen|heart
-Blut|n das|blood
-Haut|n die Häute|skin
-gesund|adj|healthy
-krank|adj|ill; sick
-Krankheit|n die Krankheiten|illness; disease
-Schmerz|n der Schmerzen|pain
-Kopfschmerzen|n die|headache
-Fieber|n das|fever
-Erkältung|n die Erkältungen|cold (illness)
-Husten|n der|cough
-Medikament|n das Medikamente|medicine; drug
-Tablette|n die Tabletten|tablet; pill
-Apotheke|n die Apotheken|pharmacy
-Krankenhaus|n das Krankenhäuser|hospital
-Praxis|n die Praxen|doctor's office; practice
-Notarzt|n der Notärzte|emergency doctor
-Unfall|n der Unfälle|accident
-müde|adj|tired
-schlafen|v|to sleep|schlief, geschlafen
-einschlafen|v|to fall asleep|schlief ein, ist eingeschlafen
-aufwachen|v|to wake up|wachte auf, ist aufgewacht
-aufstehen|v|to get up|stand auf, ist aufgestanden
-sich ausruhen|v|to rest
-sich erholen|v|to recover; to relax
-wehtun|v|to hurt|tat weh, wehgetan
+Körper|n der Körper|body||vücut; beden
+Kopf|n der Köpfe|head||baş; kafa
+Gesicht|n das Gesichter|face||yüz
+Auge|n das Augen|eye||göz
+Ohr|n das Ohren|ear||kulak
+Nase|n die Nasen|nose||burun
+Mund|n der Münder|mouth||ağız
+Zahn|n der Zähne|tooth||diş
+Haar|n das Haare|hair||saç; kıl
+Hals|n der Hälse|neck; throat||boyun; boğaz
+Schulter|n die Schultern|shoulder||omuz
+Arm|n der Arme|arm||kol
+Hand|n die Hände|hand||el
+Finger|n der Finger|finger||parmak
+Bein|n das Beine|leg||bacak
+Fuß|n der Füße|foot||ayak
+Knie|n das Knie|knee||diz
+Rücken|n der Rücken|back||sırt
+Bauch|n der Bäuche|belly; stomach||karın; göbek; mide
+Herz|n das Herzen|heart||kalp; yürek
+Blut|n das|blood||kan
+Haut|n die Häute|skin||deri; cilt
+gesund|adj|healthy||sağlıklı
+krank|adj|ill; sick||hasta
+Krankheit|n die Krankheiten|illness; disease||hastalık
+Schmerz|n der Schmerzen|pain||ağrı; acı
+Kopfschmerzen|n die|headache||baş ağrısı
+Fieber|n das|fever||ateş (hastalık)
+Erkältung|n die Erkältungen|cold (illness)||soğuk algınlığı; nezle
+Husten|n der|cough||öksürük
+Medikament|n das Medikamente|medicine; drug||ilaç
+Tablette|n die Tabletten|tablet; pill||tablet; hap
+Apotheke|n die Apotheken|pharmacy||eczane
+Krankenhaus|n das Krankenhäuser|hospital||hastane
+Praxis|n die Praxen|doctor's office; practice||muayenehane; doktor muayenehanesi
+Notarzt|n der Notärzte|emergency doctor||acil doktoru
+Unfall|n der Unfälle|accident||kaza
+müde|adj|tired||yorgun
+schlafen|v|to sleep|schlief, geschlafen|uyumak
+einschlafen|v|to fall asleep|schlief ein, ist eingeschlafen|uykuya dalmak
+aufwachen|v|to wake up|wachte auf, ist aufgewacht|uyanmak
+aufstehen|v|to get up|stand auf, ist aufgestanden|kalkmak; ayağa kalkmak
+sich ausruhen|v|to rest||dinlenmek
+sich erholen|v|to recover; to relax||iyileşmek; dinlenmek
+wehtun|v|to hurt|tat weh, wehgetan|ağrımak; acıtmak
 # ---- food / drink ----
-Essen|n das|food; meal
-Frühstück|n das Frühstücke|breakfast
-Mittagessen|n das Mittagessen|lunch
-Abendessen|n das Abendessen|dinner; supper
-Brot|n das Brote|bread
-Brötchen|n das Brötchen|bread roll
-Butter|n die|butter
-Käse|n der|cheese
-Milch|n die|milk
-Ei|n das Eier|egg
-Fleisch|n das|meat
-Hähnchen|n das Hähnchen|chicken (food)
-Fisch|n der Fische|fish
-Wurst|n die Würste|sausage
-Suppe|n die Suppen|soup
-Reis|n der|rice
-Nudel|n die Nudeln|noodle; pasta
-Kartoffel|n die Kartoffeln|potato
-Gemüse|n das|vegetables
-Obst|n das|fruit
-Apfel|n der Äpfel|apple
-Birne|n die Birnen|pear; light bulb
-Banane|n die Bananen|banana
-Orange|n die Orangen|orange
-Zitrone|n die Zitronen|lemon
-Traube|n die Trauben|grape
-Erdbeere|n die Erdbeeren|strawberry
-Tomate|n die Tomaten|tomato
-Gurke|n die Gurken|cucumber
-Zwiebel|n die Zwiebeln|onion
-Knoblauch|n der|garlic
-Salat|n der Salate|salad; lettuce
-Karotte|n die Karotten|carrot
-Pilz|n der Pilze|mushroom
-Salz|n das|salt
-Zucker|n der|sugar
-Pfeffer|n der|pepper
-Öl|n das Öle|oil
-Honig|n der|honey
-Kuchen|n der Kuchen|cake
-Keks|n der Kekse|biscuit; cookie
-Schokolade|n die Schokoladen|chocolate
-Eis|n das|ice cream; ice
-Süßigkeit|n die Süßigkeiten|sweet; candy
-Wasser|n das|water
-Tee|n der Tees|tea
-Kaffee|n der|coffee
-Saft|n der Säfte|juice
-Bier|n das Biere|beer
-Wein|n der Weine|wine
-Glas|n das Gläser|glass
-Tasse|n die Tassen|cup
-Teller|n der Teller|plate
-Löffel|n der Löffel|spoon
-Gabel|n die Gabeln|fork
-Messer|n das Messer|knife
-Topf|n der Töpfe|pot; saucepan
-Pfanne|n die Pfannen|pan
-Restaurant|n das Restaurants|restaurant
-Café|n das Cafés|cafe
-Bäckerei|n die Bäckereien|bakery
-Speisekarte|n die Speisekarten|menu
-Rechnung|n die Rechnungen|bill; invoice
-Trinkgeld|n das Trinkgelder|tip (money)
-lecker|adj|tasty; delicious
-süß|adj|sweet; cute
-sauer|adj|sour; annoyed
-scharf|adj|spicy; sharp
-frisch|adj|fresh
-hungrig|adj|hungry
-durstig|adj|thirsty
-satt|adj|full (after eating)
-Hunger|n der|hunger
-Durst|n der|thirst
-essen|v|to eat|aß, gegessen
-trinken|v|to drink|trank, getrunken
-frühstücken|v|to have breakfast
-bestellen|v|to order
-bezahlen|v|to pay
-schmecken|v|to taste (good)
+Essen|n das|food; meal||yemek; yiyecek
+Frühstück|n das Frühstücke|breakfast||kahvaltı
+Mittagessen|n das Mittagessen|lunch||öğle yemeği
+Abendessen|n das Abendessen|dinner; supper||akşam yemeği
+Brot|n das Brote|bread||ekmek
+Brötchen|n das Brötchen|bread roll||küçük ekmek; sandviç ekmeği
+Butter|n die|butter||tereyağı
+Käse|n der|cheese||peynir
+Milch|n die|milk||süt
+Ei|n das Eier|egg||yumurta
+Fleisch|n das|meat||et
+Hähnchen|n das Hähnchen|chicken (food)||tavuk (yemek); piliç
+Fisch|n der Fische|fish||balık
+Wurst|n die Würste|sausage||sosis; sucuk
+Suppe|n die Suppen|soup||çorba
+Reis|n der|rice||pirinç; pilav
+Nudel|n die Nudeln|noodle; pasta||makarna; erişte
+Kartoffel|n die Kartoffeln|potato||patates
+Gemüse|n das|vegetables||sebze
+Obst|n das|fruit||meyve
+Apfel|n der Äpfel|apple||elma
+Birne|n die Birnen|pear; light bulb||armut; ampul
+Banane|n die Bananen|banana||muz
+Orange|n die Orangen|orange||portakal
+Zitrone|n die Zitronen|lemon||limon
+Traube|n die Trauben|grape||üzüm
+Erdbeere|n die Erdbeeren|strawberry||çilek
+Tomate|n die Tomaten|tomato||domates
+Gurke|n die Gurken|cucumber||salatalık
+Zwiebel|n die Zwiebeln|onion||soğan
+Knoblauch|n der|garlic||sarımsak
+Salat|n der Salate|salad; lettuce||salata; marul
+Karotte|n die Karotten|carrot||havuç
+Pilz|n der Pilze|mushroom||mantar
+Salz|n das|salt||tuz
+Zucker|n der|sugar||şeker
+Pfeffer|n der|pepper||karabiber; biber
+Öl|n das Öle|oil||yağ
+Honig|n der|honey||bal
+Kuchen|n der Kuchen|cake||kek; pasta
+Keks|n der Kekse|biscuit; cookie||bisküvi; kurabiye
+Schokolade|n die Schokoladen|chocolate||çikolata
+Eis|n das|ice cream; ice||dondurma; buz
+Süßigkeit|n die Süßigkeiten|sweet; candy||şekerleme; tatlı
+Wasser|n das|water||su
+Tee|n der Tees|tea||çay
+Kaffee|n der|coffee||kahve
+Saft|n der Säfte|juice||meyve suyu
+Bier|n das Biere|beer||bira
+Wein|n der Weine|wine||şarap
+Glas|n das Gläser|glass||bardak; cam
+Tasse|n die Tassen|cup||fincan
+Teller|n der Teller|plate||tabak
+Löffel|n der Löffel|spoon||kaşık
+Gabel|n die Gabeln|fork||çatal
+Messer|n das Messer|knife||bıçak
+Topf|n der Töpfe|pot; saucepan||tencere
+Pfanne|n die Pfannen|pan||tava
+Restaurant|n das Restaurants|restaurant||restoran; lokanta
+Café|n das Cafés|cafe||kafe
+Bäckerei|n die Bäckereien|bakery||fırın; pastane
+Speisekarte|n die Speisekarten|menu||yemek listesi; menü
+Rechnung|n die Rechnungen|bill; invoice||hesap; fatura
+Trinkgeld|n das Trinkgelder|tip (money)||bahşiş
+lecker|adj|tasty; delicious||lezzetli
+süß|adj|sweet; cute||tatlı; şirin
+sauer|adj|sour; annoyed||ekşi; kızgın
+scharf|adj|spicy; sharp||acı (baharatlı); keskin
+frisch|adj|fresh||taze
+hungrig|adj|hungry||aç
+durstig|adj|thirsty||susamış
+satt|adj|full (after eating)||tok
+Hunger|n der|hunger||açlık
+Durst|n der|thirst||susuzluk
+essen|v|to eat|aß, gegessen|yemek
+trinken|v|to drink|trank, getrunken|içmek
+frühstücken|v|to have breakfast||kahvaltı yapmak
+bestellen|v|to order||sipariş etmek; ısmarlamak
+bezahlen|v|to pay||ödemek
+schmecken|v|to taste (good)||tadı olmak; lezzetli gelmek
 # ---- city / transport ----
-Stadt|n die Städte|city; town
-Dorf|n das Dörfer|village
-Land|n das Länder|country; land; state
-Hauptstadt|n die Hauptstädte|capital city
-Straße|n die Straßen|street; road
-Platz|n der Plätze|square; place; seat; space
-Weg|n der Wege|way; path
-Brücke|n die Brücken|bridge
-Park|n der Parks|park
-Zentrum|n das Zentren|centre
-Innenstadt|n die Innenstädte|city centre
-Gebäude|n das Gebäude|building
-Kirche|n die Kirchen|church
-Museum|n das Museen|museum
-Theater|n das Theater|theatre
-Kino|n das Kinos|cinema
-Bibliothek|n die Bibliotheken|library
-Schule|n die Schulen|school
-Universität|n die Universitäten|university
-Bank|n die Banken|bank
-Post|n die|post office; mail
-Hotel|n das Hotels|hotel
-Bahnhof|n der Bahnhöfe|railway station
-Haltestelle|n die Haltestellen|stop (bus, tram)
-Flughafen|n der Flughäfen|airport
-U-Bahn|n die U-Bahnen|underground; subway
-S-Bahn|n die S-Bahnen|suburban train
-Bus|n der Busse|bus
-Straßenbahn|n die Straßenbahnen|tram
-Auto|n das Autos|car
-Taxi|n das Taxis|taxi
-Zug|n der Züge|train
-Flugzeug|n das Flugzeuge|aeroplane
-Schiff|n das Schiffe|ship
-Fahrrad|n das Fahrräder|bicycle
-Fahrkarte|n die Fahrkarten|ticket (transport)
-Ticket|n das Tickets|ticket
-Reisepass|n der Reisepässe|passport
-Ausweis|n der Ausweise|ID card
-Grenze|n die Grenzen|border
-Reise|n die Reisen|journey; trip
-Ausflug|n der Ausflüge|excursion; outing
-Tourist|n der Touristen|tourist
-Stadtplan|n der Stadtpläne|city map
-Adresse|n die Adressen|address
-Ampel|n die Ampeln|traffic light
-Kreuzung|n die Kreuzungen|crossroads
-Ecke|n die Ecken|corner
-Parkplatz|n der Parkplätze|parking space; car park
-Tankstelle|n die Tankstellen|petrol station
-Stau|n der Staus|traffic jam
-Fahrplan|n der Fahrpläne|timetable
-Abfahrt|n die Abfahrten|departure
-Ankunft|n die Ankünfte|arrival
-Gleis|n das Gleise|platform; track
-Eingang|n der Eingänge|entrance
-Ausgang|n der Ausgänge|exit
-rechts|adv|right; on the right
-links|adv|left; on the left
-geradeaus|adv|straight ahead
-weit|adj|far; wide
-nah|adj|near
-hier|adv|here
-dort|adv|there
-da|adv|there; then
-dorthin|adv|to there
-hierher|adv|to here
-zu Hause|phr|at home
-nach Hause|phr|(to) home
-oben|adv|above; upstairs
-unten|adv|below; downstairs
-drinnen|adv|inside
-draußen|adv|outside
-überall|adv|everywhere
-nirgends|adv|nowhere
+Stadt|n die Städte|city; town||şehir; kent
+Dorf|n das Dörfer|village||köy
+Land|n das Länder|country; land; state||ülke; kara; eyalet
+Hauptstadt|n die Hauptstädte|capital city||başkent
+Straße|n die Straßen|street; road||cadde; sokak; yol
+Platz|n der Plätze|square; place; seat; space||meydan; yer; koltuk
+Weg|n der Wege|way; path||yol; patika
+Brücke|n die Brücken|bridge||köprü
+Park|n der Parks|park||park
+Zentrum|n das Zentren|centre||merkez
+Innenstadt|n die Innenstädte|city centre||şehir merkezi
+Gebäude|n das Gebäude|building||bina; yapı
+Kirche|n die Kirchen|church||kilise
+Museum|n das Museen|museum||müze
+Theater|n das Theater|theatre||tiyatro
+Kino|n das Kinos|cinema||sinema
+Bibliothek|n die Bibliotheken|library||kütüphane
+Schule|n die Schulen|school||okul
+Universität|n die Universitäten|university||üniversite
+Bank|n die Banken|bank||banka
+Post|n die|post office; mail||postane; posta
+Hotel|n das Hotels|hotel||otel
+Bahnhof|n der Bahnhöfe|railway station||tren istasyonu; gar
+Haltestelle|n die Haltestellen|stop (bus, tram)||durak
+Flughafen|n der Flughäfen|airport||havalimanı; havaalanı
+U-Bahn|n die U-Bahnen|underground; subway||metro
+S-Bahn|n die S-Bahnen|suburban train||banliyö treni
+Bus|n der Busse|bus||otobüs
+Straßenbahn|n die Straßenbahnen|tram||tramvay
+Auto|n das Autos|car||araba; otomobil
+Taxi|n das Taxis|taxi||taksi
+Zug|n der Züge|train||tren
+Flugzeug|n das Flugzeuge|aeroplane||uçak
+Schiff|n das Schiffe|ship||gemi
+Fahrrad|n das Fahrräder|bicycle||bisiklet
+Fahrkarte|n die Fahrkarten|ticket (transport)||bilet (ulaşım)
+Ticket|n das Tickets|ticket||bilet
+Reisepass|n der Reisepässe|passport||pasaport
+Ausweis|n der Ausweise|ID card||kimlik kartı; kimlik
+Grenze|n die Grenzen|border||sınır
+Reise|n die Reisen|journey; trip||seyahat; yolculuk
+Ausflug|n der Ausflüge|excursion; outing||gezi; gezinti
+Tourist|n der Touristen|tourist||turist
+Stadtplan|n der Stadtpläne|city map||şehir planı; şehir haritası
+Adresse|n die Adressen|address||adres
+Ampel|n die Ampeln|traffic light||trafik ışığı
+Kreuzung|n die Kreuzungen|crossroads||kavşak
+Ecke|n die Ecken|corner||köşe
+Parkplatz|n der Parkplätze|parking space; car park||park yeri; otopark
+Tankstelle|n die Tankstellen|petrol station||benzin istasyonu
+Stau|n der Staus|traffic jam||trafik sıkışıklığı
+Fahrplan|n der Fahrpläne|timetable||tarife; sefer çizelgesi
+Abfahrt|n die Abfahrten|departure||kalkış; hareket
+Ankunft|n die Ankünfte|arrival||varış
+Gleis|n das Gleise|platform; track||peron; ray
+Eingang|n der Eingänge|entrance||giriş
+Ausgang|n der Ausgänge|exit||çıkış
+rechts|adv|right; on the right||sağ; sağda
+links|adv|left; on the left||sol; solda
+geradeaus|adv|straight ahead||dosdoğru; düz ileri
+weit|adj|far; wide||uzak; geniş
+nah|adj|near||yakın
+hier|adv|here||burada
+dort|adv|there||orada
+da|adv|there; then||orada; o zaman
+dorthin|adv|to there||oraya
+hierher|adv|to here||buraya
+zu Hause|phr|at home||evde
+nach Hause|phr|(to) home||eve
+oben|adv|above; upstairs||yukarıda; üst katta
+unten|adv|below; downstairs||aşağıda; alt katta
+drinnen|adv|inside||içeride
+draußen|adv|outside||dışarıda
+überall|adv|everywhere||her yerde
+nirgends|adv|nowhere||hiçbir yerde
 # ---- movement verbs ----
-gehen|v|to go; to walk|ging, ist gegangen
-kommen|v|to come|kam, ist gekommen
-fahren|v|to drive; to go (by vehicle)|fuhr, ist gefahren
-laufen|v|to run; to walk|lief, ist gelaufen
-rennen|v|to run|rannte, ist gerannt
-fliegen|v|to fly|flog, ist geflogen
-schwimmen|v|to swim|schwamm, ist geschwommen
-reisen|v|to travel
-ankommen|v|to arrive|kam an, ist angekommen
-abfahren|v|to depart|fuhr ab, ist abgefahren
-abfliegen|v|to take off (plane)|flog ab, ist abgeflogen
-einsteigen|v|to get in; to board|stieg ein, ist eingestiegen
-aussteigen|v|to get off; to get out|stieg aus, ist ausgestiegen
-umsteigen|v|to change (trains)|stieg um, ist umgestiegen
-zurückkommen|v|to come back|kam zurück, ist zurückgekommen
-weggehen|v|to go away|ging weg, ist weggegangen
-hereinkommen|v|to come in|kam herein, ist hereingekommen
-hinausgehen|v|to go out|ging hinaus, ist hinausgegangen
-bringen|v|to bring|brachte, gebracht
-holen|v|to fetch; to get
-abholen|v|to pick up
-mitnehmen|v|to take along|nahm mit, mitgenommen
-folgen|v|to follow
-springen|v|to jump|sprang, ist gesprungen
-fallen|v|to fall|fiel, ist gefallen
-steigen|v|to climb; to rise|stieg, ist gestiegen
+gehen|v|to go; to walk|ging, ist gegangen|gitmek; yürümek
+kommen|v|to come|kam, ist gekommen|gelmek
+fahren|v|to drive; to go (by vehicle)|fuhr, ist gefahren|araba sürmek; araçla gitmek
+laufen|v|to run; to walk|lief, ist gelaufen|koşmak; yürümek
+rennen|v|to run|rannte, ist gerannt|koşmak
+fliegen|v|to fly|flog, ist geflogen|uçmak
+schwimmen|v|to swim|schwamm, ist geschwommen|yüzmek
+reisen|v|to travel||seyahat etmek
+ankommen|v|to arrive|kam an, ist angekommen|varmak; gelmek
+abfahren|v|to depart|fuhr ab, ist abgefahren|hareket etmek; yola çıkmak
+abfliegen|v|to take off (plane)|flog ab, ist abgeflogen|havalanmak; kalkmak (uçak)
+einsteigen|v|to get in; to board|stieg ein, ist eingestiegen|binmek
+aussteigen|v|to get off; to get out|stieg aus, ist ausgestiegen|inmek
+umsteigen|v|to change (trains)|stieg um, ist umgestiegen|aktarma yapmak
+zurückkommen|v|to come back|kam zurück, ist zurückgekommen|geri gelmek
+weggehen|v|to go away|ging weg, ist weggegangen|gitmek; uzaklaşmak
+hereinkommen|v|to come in|kam herein, ist hereingekommen|içeri gelmek
+hinausgehen|v|to go out|ging hinaus, ist hinausgegangen|dışarı çıkmak
+bringen|v|to bring|brachte, gebracht|getirmek
+holen|v|to fetch; to get||getirmek; alıp gelmek
+abholen|v|to pick up||almaya gitmek; karşılamak
+mitnehmen|v|to take along|nahm mit, mitgenommen|yanına almak; beraberinde götürmek
+folgen|v|to follow||takip etmek; izlemek
+springen|v|to jump|sprang, ist gesprungen|atlamak; zıplamak
+fallen|v|to fall|fiel, ist gefallen|düşmek
+steigen|v|to climb; to rise|stieg, ist gestiegen|tırmanmak; yükselmek
 # ---- core verbs ----
-sein|v|to be|war, ist gewesen
-haben|v|to have|hatte, gehabt
-werden|v|to become; will|wurde, ist geworden
-machen|v|to do; to make
-tun|v|to do|tat, getan
-sagen|v|to say
-sprechen|v|to speak|sprach, gesprochen
-reden|v|to talk
-erzählen|v|to tell; to narrate
-fragen|v|to ask
-antworten|v|to answer
-bitten|v|to ask for; to request|bat, gebeten
-wissen|v|to know (facts)|wusste, gewusst
-kennen|v|to know (be familiar with)|kannte, gekannt
-kennenlernen|v|to get to know; to meet
-denken|v|to think|dachte, gedacht
-glauben|v|to believe; to think
-meinen|v|to mean; to think (opinion)
-verstehen|v|to understand|verstand, verstanden
-wollen|v|to want|wollte, gewollt
-möchten|v|would like
-können|v|can; to be able|konnte, gekonnt
-müssen|v|must; to have to|musste, gemusst
-sollen|v|should; to be supposed to
-dürfen|v|may; to be allowed|durfte, gedurft
-mögen|v|to like|mochte, gemocht
-lieben|v|to love
-gefallen|v|to please; to be liked|gefiel, gefallen
-hassen|v|to hate
-sehen|v|to see|sah, gesehen
-schauen|v|to look
-ansehen|v|to look at; to watch|sah an, angesehen
-hören|v|to hear; to listen
-zuhören|v|to listen (to)
-lesen|v|to read|las, gelesen
-schreiben|v|to write|schrieb, geschrieben
-lernen|v|to learn; to study
-studieren|v|to study (at university)
-lehren|v|to teach
-unterrichten|v|to teach; to instruct
-üben|v|to practise
-arbeiten|v|to work
-leben|v|to live
-spielen|v|to play
-geben|v|to give|gab, gegeben
-nehmen|v|to take|nahm, genommen
-bekommen|v|to get; to receive|bekam, bekommen
-kaufen|v|to buy
-verkaufen|v|to sell
-einkaufen|v|to shop; to go shopping
-kosten|v|to cost
-zahlen|v|to pay
-öffnen|v|to open
-aufmachen|v|to open (colloquial)
-schließen|v|to close|schloss, geschlossen
-zumachen|v|to close (colloquial)
-anfangen|v|to begin|fing an, angefangen
-beginnen|v|to begin|begann, begonnen
-aufhören|v|to stop; to cease
-beenden|v|to finish; to end
-weitermachen|v|to continue
-warten|v|to wait
-suchen|v|to look for
-finden|v|to find|fand, gefunden
-verlieren|v|to lose|verlor, verloren
-sich erinnern|v|to remember
-vergessen|v|to forget|vergaß, vergessen
-helfen|v|to help|half, geholfen
-anrufen|v|to call (phone)|rief an, angerufen
-treffen|v|to meet|traf, getroffen
-sich treffen|v|to meet (each other)
-zeigen|v|to show
-erklären|v|to explain
-übersetzen|v|to translate
-wiederholen|v|to repeat
-schicken|v|to send
-senden|v|to send|sandte, gesandt
-legen|v|to lay; to put (flat)
-stellen|v|to put (upright); to place
-setzen|v|to set; to put
-sich setzen|v|to sit down
-sitzen|v|to sit|saß, gesessen
-stehen|v|to stand|stand, gestanden
-liegen|v|to lie (be lying)|lag, gelegen
-hängen|v|to hang|hing, gehangen
-halten|v|to hold; to stop|hielt, gehalten
-sich fühlen|v|to feel
-fühlen|v|to feel
-fürchten|v|to fear
-hoffen|v|to hope
-entscheiden|v|to decide|entschied, entschieden
-sich entscheiden|v|to decide; to make up one's mind
-lösen|v|to solve
-probieren|v|to try; to taste
-versuchen|v|to try; to attempt
-träumen|v|to dream
-lachen|v|to laugh
-lächeln|v|to smile
-weinen|v|to cry
-schreien|v|to shout; to scream|schrie, geschrien
-singen|v|to sing|sang, gesungen
-tanzen|v|to dance
-malen|v|to paint
-zeichnen|v|to draw
-spazieren gehen|phr|to go for a walk
-wandern|v|to hike
-sich interessieren|v|to be interested (in)
-heißen|v|to be called|hieß, geheißen
-nennen|v|to call; to name|nannte, genannt
-heiraten|v|to marry
-geboren werden|phr|to be born
-sterben|v|to die|starb, ist gestorben
-wachsen|v|to grow|wuchs, ist gewachsen
-ändern|v|to change; to alter
-sich ändern|v|to change (oneself)
-wechseln|v|to change; to exchange
-bauen|v|to build
-kaputtgehen|v|to break (down)|ging kaputt, ist kaputtgegangen
-reparieren|v|to repair
-werfen|v|to throw|warf, geworfen
-heben|v|to lift|hob, gehoben
-bewegen|v|to move (something)
-aufhalten|v|to stop; to hold up|hielt auf, aufgehalten
-sich verspäten|v|to be late
-sich beeilen|v|to hurry
-schaffen|v|to manage; to create|schuf, geschaffen
-einladen|v|to invite|lud ein, eingeladen
-vorschlagen|v|to suggest|schlug vor, vorgeschlagen
-empfehlen|v|to recommend|empfahl, empfohlen
-raten|v|to advise; to guess|riet, geraten
-versprechen|v|to promise|versprach, versprochen
-erlauben|v|to allow
-verbieten|v|to forbid|verbot, verboten
-prüfen|v|to check; to test
-überprüfen|v|to verify; to check
-wählen|v|to choose; to elect; to dial
-vergleichen|v|to compare|verglich, verglichen
-zählen|v|to count
-rechnen|v|to calculate
-benutzen|v|to use
-verwenden|v|to use; to apply
-brauchen|v|to need
-planen|v|to plan
-organisieren|v|to organise
-teilnehmen|v|to take part|nahm teil, teilgenommen
-gewinnen|v|to win|gewann, gewonnen
-passieren|v|to happen|passierte, ist passiert
-geschehen|v|to happen|geschah, ist geschehen
-scheinen|v|to seem; to shine|schien, geschienen
-bedeuten|v|to mean
-existieren|v|to exist
-reichen|v|to be enough; to pass
-genügen|v|to suffice
-gehören|v|to belong
-bleiben|v|to stay; to remain|blieb, ist geblieben
-lassen|v|to let; to leave|ließ, gelassen
-verlassen|v|to leave (a place)|verließ, verlassen
-besuchen|v|to visit
-begrüßen|v|to greet
-sich verabschieden|v|to say goodbye
-danken|v|to thank
-sich entschuldigen|v|to apologise
-sich freuen|v|to be glad; to look forward
-sich ärgern|v|to be annoyed
-sich sorgen|v|to worry
-sich beschweren|v|to complain
-streiten|v|to argue|stritt, gestritten
-diskutieren|v|to discuss
-zustimmen|v|to agree
-ablehnen|v|to refuse; to reject
-aufpassen|v|to pay attention; to watch out
-merken|v|to notice; to remember
-bemerken|v|to notice
-beschreiben|v|to describe|beschrieb, beschrieben
-sich vorstellen|v|to introduce oneself; to imagine
-abhängen|v|to depend|hing ab, abgehangen
-beeinflussen|v|to influence
-sich unterscheiden|v|to differ|unterschied, unterschieden
-entwickeln|v|to develop
-schützen|v|to protect
-zerstören|v|to destroy
-sparen|v|to save (money)
-ausgeben|v|to spend (money)|gab aus, ausgegeben
-verdienen|v|to earn; to deserve
-kündigen|v|to quit; to give notice
-leiten|v|to lead; to manage
-rauchen|v|to smoke
-abnehmen|v|to lose weight; to decrease|nahm ab, abgenommen
-zunehmen|v|to gain weight; to increase|nahm zu, zugenommen
-heilen|v|to heal; to cure
-behandeln|v|to treat
+sein|v|to be|war, ist gewesen|olmak
+haben|v|to have|hatte, gehabt|sahip olmak
+werden|v|to become; will|wurde, ist geworden|olmak; -ecek (gelecek zaman)
+machen|v|to do; to make||yapmak
+tun|v|to do|tat, getan|yapmak; etmek
+sagen|v|to say||söylemek; demek
+sprechen|v|to speak|sprach, gesprochen|konuşmak
+reden|v|to talk||konuşmak; sohbet etmek
+erzählen|v|to tell; to narrate||anlatmak
+fragen|v|to ask||sormak
+antworten|v|to answer||cevap vermek; yanıtlamak
+bitten|v|to ask for; to request|bat, gebeten|rica etmek; istemek
+wissen|v|to know (facts)|wusste, gewusst|bilmek
+kennen|v|to know (be familiar with)|kannte, gekannt|tanımak; bilmek
+kennenlernen|v|to get to know; to meet||tanışmak; tanımak
+denken|v|to think|dachte, gedacht|düşünmek
+glauben|v|to believe; to think||inanmak; sanmak
+meinen|v|to mean; to think (opinion)||demek istemek; düşünmek (görüş)
+verstehen|v|to understand|verstand, verstanden|anlamak
+wollen|v|to want|wollte, gewollt|istemek
+möchten|v|would like||istemek (kibarca)
+können|v|can; to be able|konnte, gekonnt|-ebilmek; yapabilmek
+müssen|v|must; to have to|musste, gemusst|zorunda olmak; -meli
+sollen|v|should; to be supposed to||-meli; gerekmek
+dürfen|v|may; to be allowed|durfte, gedurft|izinli olmak; -ebilmek (izin)
+mögen|v|to like|mochte, gemocht|sevmek; hoşlanmak
+lieben|v|to love||sevmek; âşık olmak
+gefallen|v|to please; to be liked|gefiel, gefallen|hoşuna gitmek; beğenilmek
+hassen|v|to hate||nefret etmek
+sehen|v|to see|sah, gesehen|görmek
+schauen|v|to look||bakmak
+ansehen|v|to look at; to watch|sah an, angesehen|bakmak; seyretmek
+hören|v|to hear; to listen||duymak; dinlemek
+zuhören|v|to listen (to)||dinlemek
+lesen|v|to read|las, gelesen|okumak
+schreiben|v|to write|schrieb, geschrieben|yazmak
+lernen|v|to learn; to study||öğrenmek; ders çalışmak
+studieren|v|to study (at university)||üniversitede okumak
+lehren|v|to teach||öğretmek
+unterrichten|v|to teach; to instruct||ders vermek; öğretmek
+üben|v|to practise||alıştırma yapmak; pratik yapmak
+arbeiten|v|to work||çalışmak
+leben|v|to live||yaşamak
+spielen|v|to play||oynamak; çalmak (müzik)
+geben|v|to give|gab, gegeben|vermek
+nehmen|v|to take|nahm, genommen|almak
+bekommen|v|to get; to receive|bekam, bekommen|almak; edinmek
+kaufen|v|to buy||satın almak
+verkaufen|v|to sell||satmak
+einkaufen|v|to shop; to go shopping||alışveriş yapmak
+kosten|v|to cost||mal olmak; fiyatı olmak
+zahlen|v|to pay||ödemek
+öffnen|v|to open||açmak
+aufmachen|v|to open (colloquial)||açmak
+schließen|v|to close|schloss, geschlossen|kapatmak
+zumachen|v|to close (colloquial)||kapatmak
+anfangen|v|to begin|fing an, angefangen|başlamak
+beginnen|v|to begin|begann, begonnen|başlamak
+aufhören|v|to stop; to cease||durmak; bırakmak
+beenden|v|to finish; to end||bitirmek; sona erdirmek
+weitermachen|v|to continue||devam etmek
+warten|v|to wait||beklemek
+suchen|v|to look for||aramak
+finden|v|to find|fand, gefunden|bulmak
+verlieren|v|to lose|verlor, verloren|kaybetmek
+sich erinnern|v|to remember||hatırlamak
+vergessen|v|to forget|vergaß, vergessen|unutmak
+helfen|v|to help|half, geholfen|yardım etmek
+anrufen|v|to call (phone)|rief an, angerufen|telefon etmek; aramak
+treffen|v|to meet|traf, getroffen|buluşmak; karşılaşmak
+sich treffen|v|to meet (each other)||buluşmak
+zeigen|v|to show||göstermek
+erklären|v|to explain||açıklamak
+übersetzen|v|to translate||çevirmek; tercüme etmek
+wiederholen|v|to repeat||tekrarlamak
+schicken|v|to send||göndermek
+senden|v|to send|sandte, gesandt|göndermek; yollamak
+legen|v|to lay; to put (flat)||koymak (yatay); yatırmak
+stellen|v|to put (upright); to place||koymak (dik); yerleştirmek
+setzen|v|to set; to put||oturtmak; koymak
+sich setzen|v|to sit down||oturmak
+sitzen|v|to sit|saß, gesessen|oturmak
+stehen|v|to stand|stand, gestanden|ayakta durmak; durmak
+liegen|v|to lie (be lying)|lag, gelegen|yatmak; bulunmak
+hängen|v|to hang|hing, gehangen|asmak; asılı olmak
+halten|v|to hold; to stop|hielt, gehalten|tutmak; durmak
+sich fühlen|v|to feel||hissetmek (kendini)
+fühlen|v|to feel||hissetmek
+fürchten|v|to fear||korkmak
+hoffen|v|to hope||ummak; umut etmek
+entscheiden|v|to decide|entschied, entschieden|karar vermek
+sich entscheiden|v|to decide; to make up one's mind||karar vermek
+lösen|v|to solve||çözmek
+probieren|v|to try; to taste||denemek; tatmak
+versuchen|v|to try; to attempt||denemek; çalışmak
+träumen|v|to dream||rüya görmek; hayal kurmak
+lachen|v|to laugh||gülmek
+lächeln|v|to smile||gülümsemek
+weinen|v|to cry||ağlamak
+schreien|v|to shout; to scream|schrie, geschrien|bağırmak; çığlık atmak
+singen|v|to sing|sang, gesungen|şarkı söylemek
+tanzen|v|to dance||dans etmek
+malen|v|to paint||resim yapmak; boyamak
+zeichnen|v|to draw||çizmek
+spazieren gehen|phr|to go for a walk||yürüyüşe çıkmak
+wandern|v|to hike||doğa yürüyüşü yapmak
+sich interessieren|v|to be interested (in)||ilgilenmek; ilgi duymak
+heißen|v|to be called|hieß, geheißen|adı olmak; denmek
+nennen|v|to call; to name|nannte, genannt|adlandırmak; demek
+heiraten|v|to marry||evlenmek
+geboren werden|phr|to be born||doğmak
+sterben|v|to die|starb, ist gestorben|ölmek
+wachsen|v|to grow|wuchs, ist gewachsen|büyümek
+ändern|v|to change; to alter||değiştirmek
+sich ändern|v|to change (oneself)||değişmek
+wechseln|v|to change; to exchange||değiştirmek; bozdurmak
+bauen|v|to build||inşa etmek; yapmak
+kaputtgehen|v|to break (down)|ging kaputt, ist kaputtgegangen|bozulmak; kırılmak
+reparieren|v|to repair||tamir etmek; onarmak
+werfen|v|to throw|warf, geworfen|atmak; fırlatmak
+heben|v|to lift|hob, gehoben|kaldırmak
+bewegen|v|to move (something)||hareket ettirmek; kımıldatmak
+aufhalten|v|to stop; to hold up|hielt auf, aufgehalten|durdurmak; alıkoymak
+sich verspäten|v|to be late||gecikmek; geç kalmak
+sich beeilen|v|to hurry||acele etmek
+schaffen|v|to manage; to create|schuf, geschaffen|başarmak; yaratmak
+einladen|v|to invite|lud ein, eingeladen|davet etmek
+vorschlagen|v|to suggest|schlug vor, vorgeschlagen|önermek; teklif etmek
+empfehlen|v|to recommend|empfahl, empfohlen|tavsiye etmek; önermek
+raten|v|to advise; to guess|riet, geraten|tavsiye etmek; tahmin etmek
+versprechen|v|to promise|versprach, versprochen|söz vermek
+erlauben|v|to allow||izin vermek
+verbieten|v|to forbid|verbot, verboten|yasaklamak
+prüfen|v|to check; to test||kontrol etmek; sınamak
+überprüfen|v|to verify; to check||doğrulamak; gözden geçirmek
+wählen|v|to choose; to elect; to dial||seçmek; oy vermek; (numara) çevirmek
+vergleichen|v|to compare|verglich, verglichen|karşılaştırmak
+zählen|v|to count||saymak
+rechnen|v|to calculate||hesaplamak
+benutzen|v|to use||kullanmak
+verwenden|v|to use; to apply||kullanmak; uygulamak
+brauchen|v|to need||ihtiyaç duymak; gerekmek
+planen|v|to plan||planlamak
+organisieren|v|to organise||düzenlemek; organize etmek
+teilnehmen|v|to take part|nahm teil, teilgenommen|katılmak
+gewinnen|v|to win|gewann, gewonnen|kazanmak
+passieren|v|to happen|passierte, ist passiert|olmak; meydana gelmek
+geschehen|v|to happen|geschah, ist geschehen|olmak; gerçekleşmek
+scheinen|v|to seem; to shine|schien, geschienen|görünmek; parlamak
+bedeuten|v|to mean||anlamına gelmek
+existieren|v|to exist||var olmak
+reichen|v|to be enough; to pass||yetmek; uzatmak
+genügen|v|to suffice||yetmek; yeterli olmak
+gehören|v|to belong||ait olmak
+bleiben|v|to stay; to remain|blieb, ist geblieben|kalmak
+lassen|v|to let; to leave|ließ, gelassen|bırakmak; izin vermek
+verlassen|v|to leave (a place)|verließ, verlassen|terk etmek; ayrılmak
+besuchen|v|to visit||ziyaret etmek
+begrüßen|v|to greet||selamlamak; karşılamak
+sich verabschieden|v|to say goodbye||vedalaşmak
+danken|v|to thank||teşekkür etmek
+sich entschuldigen|v|to apologise||özür dilemek
+sich freuen|v|to be glad; to look forward||sevinmek; dört gözle beklemek
+sich ärgern|v|to be annoyed||kızmak; sinirlenmek
+sich sorgen|v|to worry||endişelenmek
+sich beschweren|v|to complain||şikâyet etmek
+streiten|v|to argue|stritt, gestritten|tartışmak; kavga etmek
+diskutieren|v|to discuss||tartışmak
+zustimmen|v|to agree||kabul etmek; onaylamak
+ablehnen|v|to refuse; to reject||reddetmek
+aufpassen|v|to pay attention; to watch out||dikkat etmek
+merken|v|to notice; to remember||fark etmek; aklında tutmak
+bemerken|v|to notice||fark etmek
+beschreiben|v|to describe|beschrieb, beschrieben|tarif etmek; betimlemek
+sich vorstellen|v|to introduce oneself; to imagine||kendini tanıtmak; hayal etmek
+abhängen|v|to depend|hing ab, abgehangen|bağlı olmak
+beeinflussen|v|to influence||etkilemek
+sich unterscheiden|v|to differ|unterschied, unterschieden|farklı olmak; ayrılmak
+entwickeln|v|to develop||geliştirmek
+schützen|v|to protect||korumak
+zerstören|v|to destroy||yok etmek; tahrip etmek
+sparen|v|to save (money)||biriktirmek; tasarruf etmek
+ausgeben|v|to spend (money)|gab aus, ausgegeben|harcamak
+verdienen|v|to earn; to deserve||kazanmak; hak etmek
+kündigen|v|to quit; to give notice||istifa etmek; feshetmek
+leiten|v|to lead; to manage||yönetmek
+rauchen|v|to smoke||sigara içmek
+abnehmen|v|to lose weight; to decrease|nahm ab, abgenommen|zayıflamak; azalmak
+zunehmen|v|to gain weight; to increase|nahm zu, zugenommen|kilo almak; artmak
+heilen|v|to heal; to cure||iyileştirmek; iyileşmek
+behandeln|v|to treat||tedavi etmek; muamele etmek
 # ---- adjectives ----
-groß|adj|big; tall
-klein|adj|small; little
-gut|adj|good
-schlecht|adj|bad
-neu|adj|new
-alt|adj|old
-jung|adj|young
-schön|adj|beautiful; nice
-hässlich|adj|ugly
-klug|adj|clever
-dumm|adj|stupid
-nett|adj|nice; kind
-freundlich|adj|friendly
-böse|adj|angry; evil
-lustig|adj|funny
-traurig|adj|sad
-glücklich|adj|happy; lucky
-zufrieden|adj|satisfied; content
-interessant|adj|interesting
-langweilig|adj|boring
-wichtig|adj|important
-schwierig|adj|difficult
-schwer|adj|heavy; difficult
-leicht|adj|light; easy
-einfach|adj|simple; easy
-kompliziert|adj|complicated
-teuer|adj|expensive
-billig|adj|cheap
-günstig|adj|inexpensive; favourable
-reich|adj|rich
-arm|adj|poor
-stark|adj|strong
-schwach|adj|weak
-hoch|adj|high; tall
-niedrig|adj|low
-lang|adj|long
-kurz|adj|short
-breit|adj|wide
-schmal|adj|narrow
-eng|adj|tight; narrow
-dick|adj|thick; fat
-dünn|adj|thin
-heiß|adj|hot
-warm|adj|warm
-kalt|adj|cold
-kühl|adj|cool
-schnell|adj|fast
-langsam|adj|slow
-laut|adj|loud
-leise|adj|quiet
-sauber|adj|clean
-schmutzig|adj|dirty
-hell|adj|bright; light
-dunkel|adj|dark
-voll|adj|full
-leer|adj|empty
-offen|adj|open
-geschlossen|adj|closed
-frei|adj|free; vacant
-beschäftigt|adj|busy
-fertig|adj|ready; finished
-richtig|adj|correct; right
-falsch|adj|wrong; false
-echt|adj|real; genuine
-möglich|adj|possible
-unmöglich|adj|impossible
-nötig|adj|necessary
-gleich|adj|same; equal
-anders|adj|different
-ähnlich|adj|similar
-verschieden|adj|different; various
-nächste|adj|next
-vorige|adj|previous
-eigen|adj|own
-persönlich|adj|personal
-bequem|adj|comfortable
-gefährlich|adj|dangerous
-sicher|adj|safe; sure; certain
-ehrlich|adj|honest
-höflich|adj|polite
-ernst|adj|serious
-nass|adj|wet
-trocken|adj|dry
-weich|adj|soft
-hart|adj|hard
-rund|adj|round
-lebendig|adj|alive; lively
-tot|adj|dead
-berühmt|adj|famous
-beliebt|adj|popular
-modern|adj|modern
-bekannt|adj|known; well-known
-fremd|adj|foreign; strange
-deutsch|adj|German
-englisch|adj|English
-türkisch|adj|Turkish
-französisch|adj|French
-russisch|adj|Russian
-fleißig|adj|hard-working
-faul|adj|lazy
-ruhig|adj|calm; quiet
-nervös|adj|nervous
-verrückt|adj|crazy
-allein|adj|alone
-zusammen|adv|together
-ganz|adj|whole; entire; quite
+groß|adj|big; tall||büyük; uzun boylu
+klein|adj|small; little||küçük
+gut|adj|good||iyi
+schlecht|adj|bad||kötü
+neu|adj|new||yeni
+alt|adj|old||eski; yaşlı
+jung|adj|young||genç
+schön|adj|beautiful; nice||güzel
+hässlich|adj|ugly||çirkin
+klug|adj|clever||akıllı; zeki
+dumm|adj|stupid||aptal
+nett|adj|nice; kind||nazik; hoş
+freundlich|adj|friendly||güler yüzlü; dostça
+böse|adj|angry; evil||kızgın; kötü
+lustig|adj|funny||komik; eğlenceli
+traurig|adj|sad||üzgün
+glücklich|adj|happy; lucky||mutlu; şanslı
+zufrieden|adj|satisfied; content||memnun
+interessant|adj|interesting||ilginç
+langweilig|adj|boring||sıkıcı
+wichtig|adj|important||önemli
+schwierig|adj|difficult||zor
+schwer|adj|heavy; difficult||ağır; zor
+leicht|adj|light; easy||hafif; kolay
+einfach|adj|simple; easy||basit; kolay
+kompliziert|adj|complicated||karmaşık
+teuer|adj|expensive||pahalı
+billig|adj|cheap||ucuz
+günstig|adj|inexpensive; favourable||uygun fiyatlı; elverişli
+reich|adj|rich||zengin
+arm|adj|poor||fakir; yoksul
+stark|adj|strong||güçlü
+schwach|adj|weak||zayıf; güçsüz
+hoch|adj|high; tall||yüksek
+niedrig|adj|low||alçak; düşük
+lang|adj|long||uzun
+kurz|adj|short||kısa
+breit|adj|wide||geniş
+schmal|adj|narrow||dar
+eng|adj|tight; narrow||dar; sıkı
+dick|adj|thick; fat||kalın; şişman
+dünn|adj|thin||ince; zayıf
+heiß|adj|hot||sıcak
+warm|adj|warm||ılık; sıcak
+kalt|adj|cold||soğuk
+kühl|adj|cool||serin
+schnell|adj|fast||hızlı
+langsam|adj|slow||yavaş
+laut|adj|loud||gürültülü; yüksek sesli
+leise|adj|quiet||sessiz; alçak sesli
+sauber|adj|clean||temiz
+schmutzig|adj|dirty||kirli
+hell|adj|bright; light||aydınlık; açık (renk)
+dunkel|adj|dark||karanlık; koyu
+voll|adj|full||dolu
+leer|adj|empty||boş
+offen|adj|open||açık
+geschlossen|adj|closed||kapalı
+frei|adj|free; vacant||özgür; boş
+beschäftigt|adj|busy||meşgul
+fertig|adj|ready; finished||hazır; bitmiş
+richtig|adj|correct; right||doğru
+falsch|adj|wrong; false||yanlış; sahte
+echt|adj|real; genuine||gerçek; hakiki
+möglich|adj|possible||mümkün
+unmöglich|adj|impossible||imkânsız
+nötig|adj|necessary||gerekli
+gleich|adj|same; equal||aynı; eşit
+anders|adj|different||farklı; başka türlü
+ähnlich|adj|similar||benzer
+verschieden|adj|different; various||farklı; çeşitli
+nächste|adj|next||gelecek; sonraki
+vorige|adj|previous||önceki; geçen
+eigen|adj|own||kendi; öz
+persönlich|adj|personal||kişisel
+bequem|adj|comfortable||rahat
+gefährlich|adj|dangerous||tehlikeli
+sicher|adj|safe; sure; certain||güvenli; emin; kesin
+ehrlich|adj|honest||dürüst
+höflich|adj|polite||kibar; nazik
+ernst|adj|serious||ciddi
+nass|adj|wet||ıslak
+trocken|adj|dry||kuru
+weich|adj|soft||yumuşak
+hart|adj|hard||sert
+rund|adj|round||yuvarlak
+lebendig|adj|alive; lively||canlı
+tot|adj|dead||ölü
+berühmt|adj|famous||ünlü
+beliebt|adj|popular||popüler; sevilen
+modern|adj|modern||modern
+bekannt|adj|known; well-known||tanınmış; bilinen
+fremd|adj|foreign; strange||yabancı
+deutsch|adj|German||Almanca; Alman
+englisch|adj|English||İngilizce; İngiliz
+türkisch|adj|Turkish||Türkçe; Türk
+französisch|adj|French||Fransızca; Fransız
+russisch|adj|Russian||Rusça; Rus
+fleißig|adj|hard-working||çalışkan
+faul|adj|lazy||tembel
+ruhig|adj|calm; quiet||sakin; sessiz
+nervös|adj|nervous||gergin; sinirli
+verrückt|adj|crazy||deli; çılgın
+allein|adj|alone||yalnız
+zusammen|adv|together||birlikte; beraber
+ganz|adj|whole; entire; quite||bütün; tamamen; oldukça
 # ---- colours ----
-Farbe|n die Farben|colour
-weiß|adj|white
-schwarz|adj|black
-rot|adj|red
-blau|adj|blue
-grün|adj|green
-gelb|adj|yellow
-orange|adj|orange
-braun|adj|brown
-grau|adj|grey
-rosa|adj|pink
-lila|adj|purple
-bunt|adj|colourful
+Farbe|n die Farben|colour||renk
+weiß|adj|white||beyaz
+schwarz|adj|black||siyah
+rot|adj|red||kırmızı
+blau|adj|blue||mavi
+grün|adj|green||yeşil
+gelb|adj|yellow||sarı
+orange|adj|orange||turuncu
+braun|adj|brown||kahverengi
+grau|adj|grey||gri
+rosa|adj|pink||pembe
+lila|adj|purple||mor
+bunt|adj|colourful||rengarenk
 # ---- adverbs / particles / prepositions / conjunctions ----
-sehr|adv|very
-zu|adv|too (excessively)
-fast|adv|almost
-nur|adv|only
-auch|adv|also; too
-ebenfalls|adv|likewise; also
-sogar|adv|even
-etwa|adv|approximately; perhaps
-ungefähr|adv|approximately
-genau|adv|exactly
-wirklich|adv|really
-natürlich|adv|of course; naturally
-vielleicht|adv|maybe; perhaps
-wahrscheinlich|adv|probably
-bestimmt|adv|certainly
-leider|adv|unfortunately
-hoffentlich|adv|hopefully
-besonders|adv|especially
-ziemlich|adv|rather; quite
-gar nicht|phr|not at all
-überhaupt|adv|at all; generally
-eigentlich|adv|actually
-übrigens|adv|by the way
-also|adv|so; therefore
-deshalb|adv|therefore
-trotzdem|adv|nevertheless
-sonst|adv|otherwise
-außerdem|adv|besides; moreover
-jedoch|adv|however
-nämlich|adv|namely; you see
-mal|part|once; just (softening particle)
-nicht|part|not
-und|conj|and
-oder|conj|or
-aber|conj|but
-sondern|conj|but rather
-denn|conj|because; for
-weil|conj|because
-dass|conj|that
-ob|conj|whether; if
-wenn|conj|if; when
-als|conj|when (past); than; as
-obwohl|conj|although
-damit|conj|so that
-bevor|conj|before
-nachdem|conj|after
-während|conj|while; during
-seit|prep|since; for (time)
-bis|prep|until
-in|prep|in; into
-an|prep|at; on
-auf|prep|on; onto
-unter|prep|under; among
-über|prep|over; above; about
-vor|prep|in front of; before; ago
-hinter|prep|behind
-neben|prep|next to
-zwischen|prep|between
-mit|prep|with
-ohne|prep|without
-für|prep|for
-gegen|prep|against; around (time)
-um|prep|around; at (time)
-durch|prep|through
-nach|prep|after; to (a place)
-aus|prep|out of; from
-bei|prep|at; near; with
-von|prep|from; of
-zu|prep|to; at
-außer|prep|except
-wegen|prep|because of
-trotz|prep|despite
-statt|prep|instead of
-entlang|prep|along
-gegenüber|prep|opposite
+sehr|adv|very||çok
+zu|adv|too (excessively)||fazla; aşırı
+fast|adv|almost||neredeyse
+nur|adv|only||sadece; yalnızca
+auch|adv|also; too||de/da; ayrıca
+ebenfalls|adv|likewise; also||aynı şekilde; de/da
+sogar|adv|even||hatta; bile
+etwa|adv|approximately; perhaps||yaklaşık; belki
+ungefähr|adv|approximately||yaklaşık; aşağı yukarı
+genau|adv|exactly||tam olarak; tam
+wirklich|adv|really||gerçekten
+natürlich|adv|of course; naturally||tabii; elbette
+vielleicht|adv|maybe; perhaps||belki
+wahrscheinlich|adv|probably||muhtemelen
+bestimmt|adv|certainly||kesinlikle; mutlaka
+leider|adv|unfortunately||maalesef; ne yazık ki
+hoffentlich|adv|hopefully||umarım; inşallah
+besonders|adv|especially||özellikle
+ziemlich|adv|rather; quite||oldukça; epey
+gar nicht|phr|not at all||hiç; asla
+überhaupt|adv|at all; generally||hiç; genel olarak
+eigentlich|adv|actually||aslında
+übrigens|adv|by the way||bu arada; aklıma gelmişken
+also|adv|so; therefore||yani; o halde; demek ki
+deshalb|adv|therefore||bu yüzden; bundan dolayı
+trotzdem|adv|nevertheless||yine de; buna rağmen
+sonst|adv|otherwise||yoksa; aksi halde
+außerdem|adv|besides; moreover||ayrıca; üstelik
+jedoch|adv|however||ancak; fakat
+nämlich|adv|namely; you see||yani; çünkü
+mal|part|once; just (softening particle)||bir (kere); hele
+nicht|part|not||değil; -me/-ma
+und|conj|and||ve
+oder|conj|or||veya; ya da
+aber|conj|but||ama; fakat
+sondern|conj|but rather||aksine; bilakis
+denn|conj|because; for||çünkü; zira
+weil|conj|because||çünkü
+dass|conj|that||-diği; ki
+ob|conj|whether; if||-ip -mediği; acaba
+wenn|conj|if; when||eğer; -ince; -diğinde
+als|conj|when (past); than; as||-diğinde; -den daha; olarak
+obwohl|conj|although||-e rağmen; her ne kadar
+damit|conj|so that||-mesi için; diye
+bevor|conj|before||-meden önce
+nachdem|conj|after||-dikten sonra
+während|conj|while; during||-iken; sırasında
+seit|prep|since; for (time)||-den beri
+bis|prep|until||-e kadar
+in|prep|in; into||-de/-da; içinde
+an|prep|at; on||-de/-da; yanında
+auf|prep|on; onto||üstünde; üzerine
+unter|prep|under; among||altında; arasında
+über|prep|over; above; about||üzerinde; hakkında
+vor|prep|in front of; before; ago||önünde; önce
+hinter|prep|behind||arkasında
+neben|prep|next to||yanında
+zwischen|prep|between||arasında
+mit|prep|with||ile
+ohne|prep|without||-sız/-siz; olmadan
+für|prep|for||için
+gegen|prep|against; around (time)||karşı; -e doğru (saat)
+um|prep|around; at (time)||etrafında; -de (saat)
+durch|prep|through||-den geçerek; aracılığıyla
+nach|prep|after; to (a place)||sonra; -e (yer)
+aus|prep|out of; from||-den; dışarı
+bei|prep|at; near; with||-de/-da; yanında
+von|prep|from; of||-den; -in
+zu|prep|to; at||-e/-a
+außer|prep|except||hariç; dışında
+wegen|prep|because of||yüzünden; nedeniyle
+trotz|prep|despite||-e rağmen
+statt|prep|instead of||yerine
+entlang|prep|along||boyunca
+gegenüber|prep|opposite||karşısında
 # ---- education / language ----
-Sprache|n die Sprachen|language
-Wort|n das Wörter|word
-Satz|n der Sätze|sentence
-Buchstabe|n der Buchstaben|letter (alphabet)
-Alphabet|n das Alphabete|alphabet
-Grammatik|n die Grammatiken|grammar
-Wörterbuch|n das Wörterbücher|dictionary
-Wortschatz|n der|vocabulary
-Unterricht|n der|lessons; teaching
-Klasse|n die Klassen|class
-Kurs|n der Kurse|course
-Prüfung|n die Prüfungen|exam
-Test|n der Tests|test
-Note|n die Noten|grade; mark; note (music)
-Fehler|n der Fehler|mistake
-Frage|n die Fragen|question
-Antwort|n die Antworten|answer
-Regel|n die Regeln|rule
-Beispiel|n das Beispiele|example
-Aufgabe|n die Aufgaben|task; exercise
-Hausaufgabe|n die Hausaufgaben|homework
-Übung|n die Übungen|exercise; practice
-Text|n der Texte|text
-Geschichte|n die Geschichten|story; history
-Literatur|n die|literature
-Mathematik|n die|mathematics
-Physik|n die|physics
-Chemie|n die|chemistry
-Biologie|n die|biology
-Erdkunde|n die|geography
-Wissenschaft|n die Wissenschaften|science
-Bedeutung|n die Bedeutungen|meaning; importance
-Übersetzung|n die Übersetzungen|translation
-Aussprache|n die|pronunciation
-Erinnerung|n die Erinnerungen|memory; reminder
-Aufmerksamkeit|n die|attention
-Kenntnis|n die Kenntnisse|knowledge
-Erfahrung|n die Erfahrungen|experience
-Tafel|n die Tafeln|blackboard; bar (of chocolate)
-Pause|n die Pausen|break
-Zeugnis|n das Zeugnisse|school report; certificate
-Ausbildung|n die Ausbildungen|training; education
+Sprache|n die Sprachen|language||dil
+Wort|n das Wörter|word||kelime; sözcük
+Satz|n der Sätze|sentence||cümle
+Buchstabe|n der Buchstaben|letter (alphabet)||harf
+Alphabet|n das Alphabete|alphabet||alfabe
+Grammatik|n die Grammatiken|grammar||dil bilgisi; gramer
+Wörterbuch|n das Wörterbücher|dictionary||sözlük
+Wortschatz|n der|vocabulary||kelime hazinesi; söz varlığı
+Unterricht|n der|lessons; teaching||ders; öğretim
+Klasse|n die Klassen|class||sınıf
+Kurs|n der Kurse|course||kurs
+Prüfung|n die Prüfungen|exam||sınav
+Test|n der Tests|test||test
+Note|n die Noten|grade; mark; note (music)||not (okul); nota (müzik)
+Fehler|n der Fehler|mistake||hata
+Frage|n die Fragen|question||soru
+Antwort|n die Antworten|answer||cevap; yanıt
+Regel|n die Regeln|rule||kural
+Beispiel|n das Beispiele|example||örnek
+Aufgabe|n die Aufgaben|task; exercise||görev; alıştırma
+Hausaufgabe|n die Hausaufgaben|homework||ev ödevi
+Übung|n die Übungen|exercise; practice||alıştırma; egzersiz
+Text|n der Texte|text||metin
+Geschichte|n die Geschichten|story; history||hikâye; tarih
+Literatur|n die|literature||edebiyat
+Mathematik|n die|mathematics||matematik
+Physik|n die|physics||fizik
+Chemie|n die|chemistry||kimya
+Biologie|n die|biology||biyoloji
+Erdkunde|n die|geography||coğrafya
+Wissenschaft|n die Wissenschaften|science||bilim
+Bedeutung|n die Bedeutungen|meaning; importance||anlam; önem
+Übersetzung|n die Übersetzungen|translation||çeviri
+Aussprache|n die|pronunciation||telaffuz
+Erinnerung|n die Erinnerungen|memory; reminder||anı; hatırlatma
+Aufmerksamkeit|n die|attention||dikkat
+Kenntnis|n die Kenntnisse|knowledge||bilgi
+Erfahrung|n die Erfahrungen|experience||deneyim; tecrübe
+Tafel|n die Tafeln|blackboard; bar (of chocolate)||yazı tahtası; tablet (çikolata)
+Pause|n die Pausen|break||ara; teneffüs
+Zeugnis|n das Zeugnisse|school report; certificate||karne; belge
+Ausbildung|n die Ausbildungen|training; education||eğitim; meslek eğitimi
 # ---- money / shopping ----
-Preis|n der Preise|price; prize
-Euro|n der Euro|euro
-Cent|n der Cent|cent
-Kasse|n die Kassen|cash desk; checkout
-Kleingeld|n das|small change
-Wechselgeld|n das|change (money)
-Rabatt|n der Rabatte|discount
-Angebot|n das Angebote|offer
-kostenlos|adj|free of charge
-Geschäft|n das Geschäfte|shop; business
-Laden|n der Läden|shop
-Supermarkt|n der Supermärkte|supermarket
-Markt|n der Märkte|market
-Einkaufszentrum|n das Einkaufszentren|shopping centre
-Kaufhaus|n das Kaufhäuser|department store
-Ware|n die Waren|goods
-Produkt|n das Produkte|product
-Qualität|n die Qualitäten|quality
-Kreditkarte|n die Kreditkarten|credit card
-Konto|n das Konten|account
-Schulden|n die|debts
-Steuer|n die Steuern|tax
-Versicherung|n die Versicherungen|insurance
+Preis|n der Preise|price; prize||fiyat; ödül
+Euro|n der Euro|euro||avro
+Cent|n der Cent|cent||sent
+Kasse|n die Kassen|cash desk; checkout||kasa
+Kleingeld|n das|small change||bozuk para
+Wechselgeld|n das|change (money)||para üstü
+Rabatt|n der Rabatte|discount||indirim
+Angebot|n das Angebote|offer||teklif; kampanya
+kostenlos|adj|free of charge||ücretsiz
+Geschäft|n das Geschäfte|shop; business||dükkân; iş
+Laden|n der Läden|shop||dükkân
+Supermarkt|n der Supermärkte|supermarket||süpermarket
+Markt|n der Märkte|market||pazar; market
+Einkaufszentrum|n das Einkaufszentren|shopping centre||alışveriş merkezi
+Kaufhaus|n das Kaufhäuser|department store||büyük mağaza
+Ware|n die Waren|goods||mal; ürün
+Produkt|n das Produkte|product||ürün
+Qualität|n die Qualitäten|quality||kalite
+Kreditkarte|n die Kreditkarten|credit card||kredi kartı
+Konto|n das Konten|account||hesap
+Schulden|n die|debts||borçlar
+Steuer|n die Steuern|tax||vergi
+Versicherung|n die Versicherungen|insurance||sigorta
 # ---- communication / technology ----
-Internet|n das|internet
-Webseite|n die Webseiten|website
-E-Mail|n die E-Mails|e-mail
-Nachricht|n die Nachrichten|message; news item
-Nachrichten|n die|the news
-Nummer|n die Nummern|number
-Anruf|n der Anrufe|phone call
-Verbindung|n die Verbindungen|connection
-Information|n die Informationen|information
-Programm|n das Programme|programme; program
-App|n die Apps|app
-Bildschirm|n der Bildschirme|screen
-Taste|n die Tasten|key (keyboard)
-Tastatur|n die Tastaturen|keyboard
-Maus|n die Mäuse|mouse
-Datei|n die Dateien|file
-Ordner|n der Ordner|folder
-Passwort|n das Passwörter|password
-Drucker|n der Drucker|printer
-Radio|n das Radios|radio
-Musik|n die|music
-Lied|n das Lieder|song
-Film|n der Filme|film; movie
-Serie|n die Serien|TV series
-Spiel|n das Spiele|game; match
-Kamera|n die Kameras|camera
-Akku|n der Akkus|rechargeable battery
-Batterie|n die Batterien|battery
-aufladen|v|to charge|lud auf, aufgeladen
-einschalten|v|to switch on
-ausschalten|v|to switch off
-herunterladen|v|to download|lud herunter, heruntergeladen
-drucken|v|to print
-speichern|v|to save (file)
-löschen|v|to delete
+Internet|n das|internet||internet
+Webseite|n die Webseiten|website||web sitesi
+E-Mail|n die E-Mails|e-mail||e-posta
+Nachricht|n die Nachrichten|message; news item||mesaj; haber
+Nachrichten|n die|the news||haberler
+Nummer|n die Nummern|number||numara
+Anruf|n der Anrufe|phone call||telefon araması
+Verbindung|n die Verbindungen|connection||bağlantı
+Information|n die Informationen|information||bilgi
+Programm|n das Programme|programme; program||program
+App|n die Apps|app||uygulama
+Bildschirm|n der Bildschirme|screen||ekran
+Taste|n die Tasten|key (keyboard)||tuş
+Tastatur|n die Tastaturen|keyboard||klavye
+Maus|n die Mäuse|mouse||fare
+Datei|n die Dateien|file||dosya
+Ordner|n der Ordner|folder||klasör
+Passwort|n das Passwörter|password||şifre; parola
+Drucker|n der Drucker|printer||yazıcı
+Radio|n das Radios|radio||radyo
+Musik|n die|music||müzik
+Lied|n das Lieder|song||şarkı
+Film|n der Filme|film; movie||film
+Serie|n die Serien|TV series||dizi
+Spiel|n das Spiele|game; match||oyun; maç
+Kamera|n die Kameras|camera||kamera
+Akku|n der Akkus|rechargeable battery||şarj edilebilir pil; batarya
+Batterie|n die Batterien|battery||pil
+aufladen|v|to charge|lud auf, aufgeladen|şarj etmek
+einschalten|v|to switch on||açmak (cihaz)
+ausschalten|v|to switch off||kapatmak (cihaz)
+herunterladen|v|to download|lud herunter, heruntergeladen|indirmek
+drucken|v|to print||yazdırmak
+speichern|v|to save (file)||kaydetmek
+löschen|v|to delete||silmek
 # ---- nature / weather ----
-Natur|n die|nature
-Wetter|n das|weather
-Sonne|n die Sonnen|sun
-Mond|n der Monde|moon
-Stern|n der Sterne|star
-Himmel|n der Himmel|sky; heaven
-Wolke|n die Wolken|cloud
-Regen|n der|rain
-Schnee|n der|snow
-Wind|n der Winde|wind
-Gewitter|n das Gewitter|thunderstorm
-Nebel|n der|fog
-Frost|n der|frost
-Hitze|n die|heat
-Grad|n der Grade|degree
-Erde|n die|earth; soil
-Welt|n die Welten|world
-Luft|n die|air
-Feuer|n das Feuer|fire
-Meer|n das Meere|sea
-See|n der Seen|lake
-Fluss|n der Flüsse|river
-Ufer|n das Ufer|shore; bank
-Insel|n die Inseln|island
-Berg|n der Berge|mountain
-Wald|n der Wälder|forest
-Feld|n das Felder|field
-Baum|n der Bäume|tree
-Blume|n die Blumen|flower
-Gras|n das|grass
-Blatt|n das Blätter|leaf; sheet
-Stein|n der Steine|stone
-Sand|n der|sand
-Tier|n das Tiere|animal
-Hund|n der Hunde|dog
-Katze|n die Katzen|cat
-Pferd|n das Pferde|horse
-Kuh|n die Kühe|cow
-Schwein|n das Schweine|pig
-Vogel|n der Vögel|bird
-Bär|n der Bären|bear
-Wolf|n der Wölfe|wolf
-Fuchs|n der Füchse|fox
-Hase|n der Hasen|hare
-Schlange|n die Schlangen|snake; queue
-Insekt|n das Insekten|insect
-Es regnet|phr|it is raining
-Es schneit|phr|it is snowing
-Es ist kalt|phr|it is cold
-Es ist heiß|phr|it is hot
-sonnig|adj|sunny
-bewölkt|adj|cloudy
-windig|adj|windy
+Natur|n die|nature||doğa
+Wetter|n das|weather||hava (durumu)
+Sonne|n die Sonnen|sun||güneş
+Mond|n der Monde|moon||ay
+Stern|n der Sterne|star||yıldız
+Himmel|n der Himmel|sky; heaven||gökyüzü; cennet
+Wolke|n die Wolken|cloud||bulut
+Regen|n der|rain||yağmur
+Schnee|n der|snow||kar
+Wind|n der Winde|wind||rüzgâr
+Gewitter|n das Gewitter|thunderstorm||fırtına; gök gürültülü fırtına
+Nebel|n der|fog||sis
+Frost|n der|frost||don
+Hitze|n die|heat||sıcaklık; sıcak
+Grad|n der Grade|degree||derece
+Erde|n die|earth; soil||dünya; toprak
+Welt|n die Welten|world||dünya
+Luft|n die|air||hava
+Feuer|n das Feuer|fire||ateş
+Meer|n das Meere|sea||deniz
+See|n der Seen|lake||göl
+Fluss|n der Flüsse|river||nehir; ırmak
+Ufer|n das Ufer|shore; bank||kıyı; sahil
+Insel|n die Inseln|island||ada
+Berg|n der Berge|mountain||dağ
+Wald|n der Wälder|forest||orman
+Feld|n das Felder|field||tarla; alan
+Baum|n der Bäume|tree||ağaç
+Blume|n die Blumen|flower||çiçek
+Gras|n das|grass||çim; ot
+Blatt|n das Blätter|leaf; sheet||yaprak; sayfa
+Stein|n der Steine|stone||taş
+Sand|n der|sand||kum
+Tier|n das Tiere|animal||hayvan
+Hund|n der Hunde|dog||köpek
+Katze|n die Katzen|cat||kedi
+Pferd|n das Pferde|horse||at
+Kuh|n die Kühe|cow||inek
+Schwein|n das Schweine|pig||domuz
+Vogel|n der Vögel|bird||kuş
+Bär|n der Bären|bear||ayı
+Wolf|n der Wölfe|wolf||kurt
+Fuchs|n der Füchse|fox||tilki
+Hase|n der Hasen|hare||tavşan
+Schlange|n die Schlangen|snake; queue||yılan; kuyruk (sıra)
+Insekt|n das Insekten|insect||böcek
+Es regnet|phr|it is raining||yağmur yağıyor
+Es schneit|phr|it is snowing||kar yağıyor
+Es ist kalt|phr|it is cold||hava soğuk
+Es ist heiß|phr|it is hot||hava sıcak
+sonnig|adj|sunny||güneşli
+bewölkt|adj|cloudy||bulutlu
+windig|adj|windy||rüzgârlı
 # ---- sport / leisure ----
-Sport|n der|sport
-Fußball|n der|football; soccer
-Handball|n der|handball
-Tennis|n das|tennis
-Schach|n das|chess
-Schwimmbad|n das Schwimmbäder|swimming pool
-Stadion|n das Stadien|stadium
-Mannschaft|n die Mannschaften|team
-Training|n das|training
-Sieg|n der Siege|victory
-Hobby|n das Hobbys|hobby
-Freizeit|n die|free time; leisure
-Konzert|n das Konzerte|concert
-Ausstellung|n die Ausstellungen|exhibition
-Party|n die Partys|party
-Fest|n das Feste|celebration; festival
-feiern|v|to celebrate
-Verein|n der Vereine|club; association
+Sport|n der|sport||spor
+Fußball|n der|football; soccer||futbol
+Handball|n der|handball||hentbol
+Tennis|n das|tennis||tenis
+Schach|n das|chess||satranç
+Schwimmbad|n das Schwimmbäder|swimming pool||yüzme havuzu
+Stadion|n das Stadien|stadium||stadyum
+Mannschaft|n die Mannschaften|team||takım
+Training|n das|training||antrenman
+Sieg|n der Siege|victory||zafer; galibiyet
+Hobby|n das Hobbys|hobby||hobi
+Freizeit|n die|free time; leisure||boş zaman
+Konzert|n das Konzerte|concert||konser
+Ausstellung|n die Ausstellungen|exhibition||sergi
+Party|n die Partys|party||parti
+Fest|n das Feste|celebration; festival||kutlama; bayram
+feiern|v|to celebrate||kutlamak
+Verein|n der Vereine|club; association||dernek; kulüp
 # ---- feelings / abstract ----
-Leben|n das Leben|life
-Tod|n der|death
-Liebe|n die|love
-Freundschaft|n die Freundschaften|friendship
-Glück|n das|happiness; luck
-Freude|n die|joy
-Angst|n die Ängste|fear; anxiety
-Hoffnung|n die Hoffnungen|hope
-Traum|n der Träume|dream
-Wahrheit|n die Wahrheiten|truth
-Lüge|n die Lügen|lie
-Gedanke|n der Gedanken|thought
-Idee|n die Ideen|idea
-Meinung|n die Meinungen|opinion
-Gefühl|n das Gefühle|feeling
-Laune|n die Launen|mood
-Wunsch|n der Wünsche|wish
-Interesse|n das Interessen|interest
-Freiheit|n die|freedom
-Recht|n das Rechte|right; law
-Gesetz|n das Gesetze|law
-Ordnung|n die|order
-Wahl|n die Wahlen|choice; election
-Möglichkeit|n die Möglichkeiten|possibility; opportunity
-Grund|n der Gründe|reason; ground
-Folge|n die Folgen|consequence; episode
-Fall|n der Fälle|case; fall
-Art|n die Arten|kind; type; way
-Weise|n die Weisen|manner; way
-Bedingung|n die Bedingungen|condition
-Unterschied|n der Unterschiede|difference
-Teil|n der Teile|part
-Ende|n das Enden|end
-Anfang|n der Anfänge|beginning
-Mitte|n die|middle
-Ort|n der Orte|place; location
-Seite|n die Seiten|side; page
-Form|n die Formen|form; shape
-Zahl|n die Zahlen|number
-Menge|n die Mengen|amount; quantity; crowd
-Gewicht|n das Gewichte|weight
-Gesellschaft|n die Gesellschaften|society; company
-Staat|n der Staaten|state (country)
-Regierung|n die Regierungen|government
-Volk|n das Völker|people; nation
-Krieg|n der Kriege|war
-Frieden|n der|peace
-Polizei|n die|police
-Kultur|n die Kulturen|culture
-Kunst|n die Künste|art
-Religion|n die Religionen|religion
-Problem|n das Probleme|problem
-Lösung|n die Lösungen|solution
-Erfolg|n der Erfolge|success
-Ziel|n das Ziele|goal; destination
-Plan|n der Pläne|plan
-Ergebnis|n das Ergebnisse|result
-Projekt|n das Projekte|project
-Umwelt|n die|environment
-Zukunft|n die|future
-Vergangenheit|n die|past
-Gegenwart|n die|present
-Ereignis|n das Ereignisse|event
-Situation|n die Situationen|situation
-Beziehung|n die Beziehungen|relationship
-Verantwortung|n die|responsibility
-Sicherheit|n die|safety; security
+Leben|n das Leben|life||hayat; yaşam
+Tod|n der|death||ölüm
+Liebe|n die|love||aşk; sevgi
+Freundschaft|n die Freundschaften|friendship||arkadaşlık; dostluk
+Glück|n das|happiness; luck||mutluluk; şans
+Freude|n die|joy||sevinç; neşe
+Angst|n die Ängste|fear; anxiety||korku; kaygı
+Hoffnung|n die Hoffnungen|hope||umut
+Traum|n der Träume|dream||rüya; hayal
+Wahrheit|n die Wahrheiten|truth||gerçek; hakikat
+Lüge|n die Lügen|lie||yalan
+Gedanke|n der Gedanken|thought||düşünce
+Idee|n die Ideen|idea||fikir
+Meinung|n die Meinungen|opinion||görüş; kanaat
+Gefühl|n das Gefühle|feeling||duygu; his
+Laune|n die Launen|mood||ruh hali; keyif
+Wunsch|n der Wünsche|wish||dilek; istek
+Interesse|n das Interessen|interest||ilgi; çıkar
+Freiheit|n die|freedom||özgürlük
+Recht|n das Rechte|right; law||hak; hukuk
+Gesetz|n das Gesetze|law||kanun; yasa
+Ordnung|n die|order||düzen
+Wahl|n die Wahlen|choice; election||seçim
+Möglichkeit|n die Möglichkeiten|possibility; opportunity||olanak; imkân; fırsat
+Grund|n der Gründe|reason; ground||sebep; neden; zemin
+Folge|n die Folgen|consequence; episode||sonuç; bölüm (dizi)
+Fall|n der Fälle|case; fall||durum; olay; düşüş
+Art|n die Arten|kind; type; way||tür; çeşit; tarz
+Weise|n die Weisen|manner; way||biçim; tarz; şekil
+Bedingung|n die Bedingungen|condition||koşul; şart
+Unterschied|n der Unterschiede|difference||fark
+Teil|n der Teile|part||parça; bölüm
+Ende|n das Enden|end||son
+Anfang|n der Anfänge|beginning||başlangıç
+Mitte|n die|middle||orta
+Ort|n der Orte|place; location||yer; mekân
+Seite|n die Seiten|side; page||taraf; sayfa
+Form|n die Formen|form; shape||biçim; şekil; form
+Zahl|n die Zahlen|number||sayı
+Menge|n die Mengen|amount; quantity; crowd||miktar; kalabalık
+Gewicht|n das Gewichte|weight||ağırlık
+Gesellschaft|n die Gesellschaften|society; company||toplum; şirket
+Staat|n der Staaten|state (country)||devlet
+Regierung|n die Regierungen|government||hükümet
+Volk|n das Völker|people; nation||halk; millet
+Krieg|n der Kriege|war||savaş
+Frieden|n der|peace||barış
+Polizei|n die|police||polis
+Kultur|n die Kulturen|culture||kültür
+Kunst|n die Künste|art||sanat
+Religion|n die Religionen|religion||din
+Problem|n das Probleme|problem||sorun; problem
+Lösung|n die Lösungen|solution||çözüm
+Erfolg|n der Erfolge|success||başarı
+Ziel|n das Ziele|goal; destination||hedef; amaç; varış yeri
+Plan|n der Pläne|plan||plan
+Ergebnis|n das Ergebnisse|result||sonuç
+Projekt|n das Projekte|project||proje
+Umwelt|n die|environment||çevre
+Zukunft|n die|future||gelecek
+Vergangenheit|n die|past||geçmiş
+Gegenwart|n die|present||şimdiki zaman; bugün
+Ereignis|n das Ereignisse|event||olay
+Situation|n die Situationen|situation||durum
+Beziehung|n die Beziehungen|relationship||ilişki
+Verantwortung|n die|responsibility||sorumluluk
+Sicherheit|n die|safety; security||güvenlik; emniyet
 """

@@ -9,8 +9,8 @@ German Course AI, Almanca öğrenimi için yerel veriyi önceleyen bağımsız b
 - SM-2 ve Leitner tabanlı aralıklı tekrar; günlük hedef ve seri
 - 160 yerleşik A1 kelime; isimlerde artikel, cinsiyet ve çoğul
 - Almanca-Türkçe-İngilizce sözlük, favoriler, yanlış kelimeler
-- Çift yönlü **Almanca ↔ İngilizce sözlük** sekmesi: 1.260+ gömülü madde (artikel + çoğul), yön otomatik, çoğul/umlaut/ß toleranslı arama, seslendirme, kelime bankasına ekleme, CSV/TSV içe/dışa aktarma
-- **AI destekli sözlük**: sözlükte bulunmayan kelimeler LM Studio'ya ya da alternatif bir OpenAI uyumlu uç noktaya (NVIDIA NIM veya herhangi bir URL + API anahtarı) yapılandırılmış JSON olarak sorulur; sonuçlar (artikel/çoğul, çeviri, örnek cümle, not) yerel sözlüğe önbelleklenir ve sonraki aramalar çevrimdışı çalışır
+- Üç dilli **Almanca ↔ İngilizce ↔ Türkçe sözlük** sekmesi: 1.260+ gömülü madde (artikel + çoğul), yön seçici (`Otomatik`, `DE → EN`, `EN → DE`, `DE → TR`, `TR → DE`; sabit yönde yalnızca kaynak dil aranır, seçim kaydedilir), Türkçe sütunu ve ayrıntı satırı, çoğul/umlaut/ß toleranslı arama, seslendirme, kelime bankasına ekleme (Türkçe karşılık varsa `tr` alanına), CSV/TSV içe/dışa aktarma (`tr` sütunu; başlık satırı tanınır, eski düzen kabul edilir; gömülü bir kelime için kullanıcı satırı Türkçe karşılığın yerine geçer)
+- **AI destekli sözlük**: sözlükte bulunmayan kelimeler LM Studio'ya ya da alternatif bir OpenAI uyumlu uç noktaya (NVIDIA NIM veya herhangi bir URL + API anahtarı) yapılandırılmış JSON olarak sorulur; sonuçlar (artikel/çoğul, İngilizce ve Türkçe çeviri, örnek cümle, not) yerel sözlüğe önbelleklenir ve sonraki aramalar çevrimdışı çalışır; `DE → TR` yönünde Türkçe karşılığı eksik bir madde bulunursa AI arka planda sorulur ve gelen Türkçe karşılık aynı maddeye eklenir (kopya oluşmaz)
 - Kart, çoktan seçmeli, yazma, dinleme ve eşleştirme çalışma seçenekleri
 - CEFR A1-C1 profili ve puanlanan sınav motoru
 - Ä, Ö, Ü, ß, isimlerin büyük yazımı, `ch`, `sch`, `sp`, `st`, `z`, `w`, `v`, `j`, bileşik kelime ve vurgu laboratuvarı
@@ -61,7 +61,7 @@ Sözlük sekmesi iki sağlayıcı kullanabilir:
 - **LM Studio** (yerel, anahtar gerekmez) — `app.ai`, yukarıdaki adres.
 - **Alternatif uç nokta** — herhangi bir OpenAI uyumlu API: varsayılan `https://integrate.api.nvidia.com/v1` (NVIDIA NIM, model `meta/llama-3.1-8b-instruct`); OpenRouter, Groq veya Ollama gibi başka bir temel URL, model adı ve API anahtarı da girilebilir. Ayarlar sayfasında etkinleştirilir, "Bağlantıyı test et" ile denenir. Yerel ağdaki bir sunucu (ör. `http://192.168.1.10:11434`, `.local` adları) için API anahtarı gerekmez; genel adreslerde anahtar zorunludur.
 
-Ayarlardaki (ve sözlük araç çubuğundaki) **Sözlük AI kaynağı** politikası: `Otomatik` (LM Studio erişilebilirse o, değilse etkinse alternatif), `LM Studio`, `Alternatif` veya `Kapalı`. Sözlükte sonuç çıkmazsa AI arka planda sorulur; bulunan maddeler `AI` kaynağıyla listelenir ve (varsayılan olarak) `dict_entries` tablosuna kaydedilir; sözlüğün zaten bildiği bir madde başlığını yineleyen yanıtlar kaydedilmez, istenirse "Sözlüğe kaydet" ile saklanır. "AI'a sor" düğmesi yerel sonuç olsa bile AI maddelerini listenin üstüne ekler; bu maddeler otomatik kaydedilmez.
+Ayarlardaki (ve sözlük araç çubuğundaki) **Sözlük AI kaynağı** politikası: `Otomatik` (LM Studio erişilebilirse o, değilse etkinse alternatif), `LM Studio`, `Alternatif` veya `Kapalı`. Sözlükte sonuç çıkmazsa AI arka planda sorulur; bulunan maddeler `AI` kaynağıyla listelenir ve (varsayılan olarak) `dict_entries` tablosuna kaydedilir; sözlüğün zaten bildiği bir madde başlığını yineleyen yanıtlar kaydedilmez, istenirse "Sözlüğe kaydet" ile saklanır. "AI'a sor" düğmesi yerel sonuç olsa bile AI maddelerini listenin üstüne ekler; bu maddeler otomatik kaydedilmez. AI'dan hem `translation_en` hem `translation_tr` istenir; `DE → TR` yönünde bulunan maddenin Türkçe karşılığı yoksa AI kendiliğinden sorulur ve yanıttaki Türkçe karşılık var olan maddeye yazılır (gömülü maddeler için `dict_entries` tablosuna `ai` kaynaklı bir eş satır düşer; yeni bir madde üretilmez). Karşılığı zaten olan bir madde için AI'ın verdiği ek Türkçe anlam mevcut karşılığa eklenir, üzerine yazılmaz; "Rastgele kelime" ve arama geçmişi seçili yön ne olursa olsun kelimeyi madde başı tarafında bulur.
 
 API anahtarı Windows Kimlik Bilgisi Yöneticisi'nde (`GermanCourseAI/alt_api_key`) saklanır; Windows dışında veya API başarısız olursa `settings/secrets.json` dosyasına düşer. Anahtar hiçbir zaman `settings.json` içine yazılmaz. `GERMANCOURSEAI_API_KEY` ortam değişkeni kayıtlı anahtarı geçersiz kılar.
 
@@ -78,7 +78,7 @@ API anahtarı Windows Kimlik Bilgisi Yöneticisi'nde (`GermanCourseAI/alt_api_ke
 python -m pytest -q
 ```
 
-Testler pencere/18 sayfa kurulumu, anlık ve kalıcı dil değişimi, i18n bütünlüğü, SQLite geçişi, 150+ kelime, 1.260+ maddelik sözlük motoru (iki yönlü arama, içe/dışa aktarma, SQLite kullanıcı maddeleri), yerel sahte OpenAI sunucusuyla AI sözlük araması (JSON ayrıştırma, Bearer başlığı, sağlayıcı seçimi, sözlük sekmesi akışı), gizli anahtar deposu (dosya arka ucu), `dict_entries` şema geçişi, SRS, kart/sınav akışı, `ä/ae` ve `ß/ss` araması, doğru yazım kontrolü, Unicode CSV, AI çevrimdışı davranışı, token gizliliği ve paket turunu kapsar. Testler gerçek ağa ya da Kimlik Bilgisi Yöneticisi'ne asla dokunmaz.
+Testler pencere/18 sayfa kurulumu, anlık ve kalıcı dil değişimi, i18n bütünlüğü, SQLite geçişi, 150+ kelime, 1.260+ maddelik sözlük motoru (sabit ve otomatik yönler, Türkçe alanı, içe/dışa aktarma, SQLite kullanıcı maddeleri), yerel sahte OpenAI sunucusuyla AI sözlük araması (JSON ayrıştırma, Bearer başlığı, sağlayıcı seçimi, sözlük sekmesi akışı), gizli anahtar deposu (dosya arka ucu), `dict_entries` şema geçişi, SRS, kart/sınav akışı, `ä/ae` ve `ß/ss` araması, doğru yazım kontrolü, Unicode CSV, AI çevrimdışı davranışı, token gizliliği ve paket turunu kapsar. Testler gerçek ağa ya da Kimlik Bilgisi Yöneticisi'ne asla dokunmaz.
 
 ## Proje yapısı
 
@@ -92,7 +92,7 @@ gca/                    Bağımsız Python paketi
   content.py            Almancaya özgü laboratuvar içeriği
   seed_words.py         Özgün A1 başlangıç sözlüğü
   dictionary.py         Sözlük motoru ve yapılandırılmış AI araması
-  dict_data.py          Gömülü DE-EN sözlük verisi
+  dict_data.py          Gömülü DE-EN-TR sözlük verisi
   ai_client.py          OpenAI uyumlu istemci (LM Studio, NIM, ...) ve sağlayıcı seçimi
   secrets.py            API anahtarı deposu (Kimlik Bilgisi Yöneticisi / dosya)
 tests/                  Otomatik testler

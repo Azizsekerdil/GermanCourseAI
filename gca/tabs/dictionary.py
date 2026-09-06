@@ -11,27 +11,38 @@ from ..ui import BaseTab
 
 
 class DictionaryTab(BaseTab):
-    """Bidirectional dictionary: built-in core entries + the user's own entries + cached AI entries."""
+    """Three-language dictionary (target ↔ English ↔ Turkish): built-in core entries + the user's own entries + cached AI entries.
+
+    The direction selector (setting ``dict_direction``) is ``auto`` or one of :data:`gca.dictionary.DIRECTIONS`; a fixed
+    direction searches only its source side. In a ``*2tr`` direction an entry without a Turkish gloss is completed by the AI
+    (per the AI policy) and the gloss is written into that entry instead of adding a duplicate."""
     key, subtitle_key = "tab.dictionary", "dict.subtitle"
     MAX_HISTORY = 12
     POLICY_KEYS = {"auto": "dict.ai_auto", "local": "dict.ai_local", "alt": "dict.ai_alt", "off": "dict.ai_off"}
+    COLUMNS = ("head", "trans", "tr", "pos", "extra", "src") if D.HAS_TR else ("head", "trans", "pos", "extra", "src")
 
     def build(self):
         self.heading()
-        self.dict = D.build_dictionary([(r["headword"], r["translation"], r["pos"], r["extra"], r["note"], r.get("source", D.SOURCE_USER), r.get("example", ""))
-                                        for r in self.repos.dictionary.all()])
-        self.results = []; self.history = []; self._last_q = ""
+        self.dict = D.build_dictionary([(r["headword"], r["translation"], r["pos"], r["extra"], r["note"], r.get("source", D.SOURCE_USER),
+                                         r.get("example", ""), r.get("tr", "")) for r in self.repos.dictionary.all()])
+        self.results = []; self.history = []; self._last_q = ""     # history: (query, direction) pairs, newest first
         self._ai_seq = 0            # bumped by every explicit or quiet search / AI request: older requests may no longer touch the list
         self._ai_pending = None     # sequence number of the AI request in flight, if any
+        self._list_direction = self._direction()   # direction code the current list was requested with (may differ from the combobox)
         bar = ttk.Frame(self); bar.pack(fill="x", pady=(0, 6))
-        airow = ttk.Frame(self)          # AI policy + provider state live on their own row so the toolbar never overflows
+        airow = ttk.Frame(self)          # direction + AI policy + provider state live on their own row so the toolbar never overflows
         self.query = tk.StringVar()
         self.entry = ttk.Entry(bar, textvariable=self.query, font=("Segoe UI", 12)); self.entry.pack(side="left", fill="x", expand=True)
         self.entry.bind("<Return>", lambda _e: self.search()); self.entry.bind("<KeyRelease>", self._on_key)
         ttk.Button(bar, text=self.t("g.search"), style="Accent.TButton", command=self.search).pack(side="left", padx=5)
         self.dir_label = ttk.Label(bar, text="", style="Muted.TLabel", width=9); self.dir_label.pack(side="left", padx=(2, 8))
         ttk.Button(bar, text="🎲 " + self.t("dict.random"), command=self.random_word).pack(side="left")
-        ttk.Label(airow, text=self.t("dict.ai_policy"), style="Muted.TLabel").pack(side="left", padx=(0, 4))
+        ttk.Label(airow, text=self.t("dict.direction"), style="Muted.TLabel").pack(side="left", padx=(0, 4))
+        self._direction_labels = {code: (self.t("dict.dir_auto") if code == "auto" else D.direction_text(code)) for code in D.DIRECTIONS}
+        self.direction = tk.StringVar(value=self._direction_labels[self._direction()])
+        self.direction_box = ttk.Combobox(airow, textvariable=self.direction, state="readonly", width=10, values=[self._direction_labels[c] for c in D.DIRECTIONS])
+        self.direction_box.pack(side="left"); self.direction_box.bind("<<ComboboxSelected>>", self._direction_changed)
+        ttk.Label(airow, text=self.t("dict.ai_policy"), style="Muted.TLabel").pack(side="left", padx=(14, 4))
         self._policy_labels = {code: self.t(k) for code, k in self.POLICY_KEYS.items()}
         self.policy = tk.StringVar(value=self._policy_labels.get(self.app.settings.get("dict_ai", "auto"), self._policy_labels["auto"]))
         self.policy_box = ttk.Combobox(airow, textvariable=self.policy, state="readonly", width=11, values=[self._policy_labels[c] for c in C.DICT_AI_POLICIES])
@@ -44,12 +55,14 @@ class DictionaryTab(BaseTab):
 
         pane = ttk.PanedWindow(self, orient="horizontal"); pane.pack(fill="both", expand=True)
         left = ttk.Frame(pane)
-        cols = ("head", "trans", "pos", "extra", "src")
-        self.tree = ttk.Treeview(left, columns=cols, show="headings", selectmode="browse")
-        for col, title, width, stretch in ((("head", self.t("dict.headword"), 190, False), ("trans", self.t("dict.translation"), 260, True),
-                                            ("pos", self.t("words.pos"), 70, False), ("extra", self.t("dict.extra"), 110, False),
-                                            ("src", self.t("dict.source"), 70, False))):
+        self.tree = ttk.Treeview(left, columns=self.COLUMNS, show="headings", selectmode="browse")
+        specs = {"head": (self.t("dict.headword"), 190, False), "trans": (self.t("dict.translation"), 220, True),
+                 "tr": (self.t("dict.turkish"), 200, True), "pos": (self.t("words.pos"), 70, False),
+                 "extra": (self.t("dict.extra"), 110, False), "src": (self.t("dict.source"), 70, False)}
+        for col in self.COLUMNS:
+            title, width, stretch = specs[col]
             self.tree.heading(col, text=title); self.tree.column(col, width=width, minwidth=40, anchor="w", stretch=stretch)
+        self.tree.configure(displaycolumns=self._columns_for(self._direction()))
         vs = ttk.Scrollbar(left, orient="vertical", command=self.tree.yview); self.tree.configure(yscrollcommand=vs.set)
         self.tree.pack(side="left", fill="both", expand=True); vs.pack(side="right", fill="y")
         self.tree.bind("<<TreeviewSelect>>", self.selected); self.tree.bind("<Double-1>", lambda _e: self.speak())
@@ -59,6 +72,8 @@ class DictionaryTab(BaseTab):
         self.w_head = ttk.Label(right, text="—", style="Card.TLabel", font=("Segoe UI", 24, "bold"), wraplength=360, justify="left"); self.w_head.pack(anchor="w")
         self.w_meta = ttk.Label(right, text="", style="CardMuted.TLabel", wraplength=360, justify="left"); self.w_meta.pack(anchor="w", pady=(4, 0))
         self.w_trans = ttk.Label(right, text="", style="Card.TLabel", font=("Segoe UI", 12, "bold"), wraplength=360, justify="left"); self.w_trans.pack(anchor="w", pady=(10, 0))
+        self.w_tr = ttk.Label(right, text="", style="Card.TLabel", font=("Segoe UI", 12, "bold"), wraplength=360, justify="left")
+        if D.HAS_TR: self.w_tr.pack(anchor="w", pady=(2, 0))
         self.w_example = ttk.Label(right, text="", style="Card.TLabel", font=("Segoe UI", 10, "italic"), wraplength=360, justify="left"); self.w_example.pack(anchor="w", pady=(6, 0))
         self.w_note = ttk.Label(right, text="", style="CardMuted.TLabel", wraplength=360, justify="left"); self.w_note.pack(anchor="w", pady=(6, 0))
         self.w_bank = ttk.Label(right, text="", style="CardMuted.TLabel", wraplength=360, justify="left"); self.w_bank.pack(anchor="w", pady=(6, 0))
@@ -84,11 +99,38 @@ class DictionaryTab(BaseTab):
         """Called by the shell whenever the page is selected: pick up settings changed elsewhere."""
         label = self._policy_labels.get(self.app.settings.get("dict_ai", "auto"))
         if label and label != self.policy.get(): self.policy.set(label)
+        label = self._direction_labels[self._direction()]
+        if label != self.direction.get(): self.direction.set(label)
         self.refresh_ai_state()
 
     def _policy_changed(self, _event=None):
         code = next((c for c, label in self._policy_labels.items() if label == self.policy.get()), "auto")
         self.app.settings["dict_ai"] = code; C.save_settings(self.app.settings); self.refresh_ai_state()
+
+    def _direction(self) -> str:
+        """The chosen direction code (validated; ``auto`` when the setting is missing or stale)."""
+        code = self.app.settings.get("dict_direction", "auto")
+        return code if code in D.DIRECTIONS else "auto"
+
+    def _direction_changed(self, _event=None):
+        """Combobox handler: persist the choice and re-run the current query in the new direction."""
+        code = next((c for c, label in self._direction_labels.items() if label == self.direction.get()), "auto")
+        self.app.settings["dict_direction"] = code; C.save_settings(self.app.settings)
+        if self.query.get().strip(): self.search()
+        else: self.dir_label.configure(text=""); self._list_direction = code; self._fill(code, [])
+
+    def _headword_direction(self) -> str:
+        """Direction for looking up a headword the dictionary already contains: the chosen one when it starts from the
+        target language (or is automatic), else its mirror - a random word in EN → DE is shown as DE → EN, in TR → DE as DE → TR."""
+        chosen = self._direction()
+        src, _dst = D.split_direction(chosen)
+        return chosen if chosen == "auto" or src == C.TARGET_LANG else D.direction_code(C.TARGET_LANG, src)
+
+    def _columns_for(self, direction: str) -> tuple:
+        """Column order: headword | English | Türkçe | … - the Turkish column moves right after the headword for ``*2tr``."""
+        if D.HAS_TR and D.target_field(direction) == "tr":
+            return ("head", "tr", "trans", "pos", "extra", "src")
+        return self.COLUMNS
 
     def refresh_ai_state(self):
         """Provider status label ("LM Studio: connected" / "Alternative: ready" / "AI off"), probed in the background."""
@@ -109,50 +151,81 @@ class DictionaryTab(BaseTab):
 
     def _on_key(self, event):
         q = self.query.get().strip()
-        if not q: self._last_q = ""; self.dir_label.configure(text=""); self._fill("target", []); return
+        if not q: self._last_q = ""; self.dir_label.configure(text=""); self._list_direction = self._direction(); self._fill(self._list_direction, []); return
         if q == self._last_q or event.keysym in ("Return", "Up", "Down"): return     # modifier/cursor keys: the text did not change
         if len(q) >= 2: self.search(quiet=True)
 
-    def search(self, quiet: bool = False):
+    def search(self, quiet: bool = False, direction: str | None = None):
+        """Look the query up in ``direction`` (default: the chosen one) and, unless ``quiet``, remember it and ask the AI when needed."""
         q = self.query.get().strip()
         if not q: return
+        direction = direction or self._direction()
         self._last_q = q; self._ai_seq += 1                  # the list now belongs to this query; an older AI answer is still cached, just not listed
-        rows = self._list(q)
+        rows = self._list(q, direction)
         if quiet: return
-        self._remember(q)
+        self._remember(q, direction)
         if rows:
-            first = self.tree.get_children()[0]; self.tree.selection_set(first); self.tree.focus(first); self.selected()
+            self._select_first()
             self.app.status.set(f"'{q}': {len(rows)} {self.t('dict.results')}")
+            if self._turkish_missing(rows, direction) and self.app.settings.get("dict_ai", "auto") != "off":
+                self._run_ai(q, merge=True); self.app.status.set(self.t("dict.tr_missing"))
         else:
             self.app.status.set(self.t("dict.no_result")); self._write_ai(self.t("dict.no_result"))
             if self.app.settings.get("dict_ai", "auto") != "off": self._run_ai(q, merge=False)
 
-    def _other(self) -> str: return "TR" if C.TARGET_LANG == "en" else "EN"
+    @staticmethod
+    def _turkish_missing(rows: list, direction: str) -> bool:
+        """True when a fixed ``*2tr`` search found an entry whose Turkish gloss is still unknown (the AI can fill it)."""
+        return D.HAS_TR and direction != "auto" and D.target_field(direction) == "tr" and bool(rows) and not rows[0].tr
 
-    def _list(self, q: str) -> list:
-        """Local lookup shown in the tree together with the direction label; returns the rows."""
-        direction, rows = self.dict.lookup(q)
+    def _list(self, q: str, direction: str | None = None) -> list:
+        """Local lookup shown in the tree together with the effective direction label; returns the rows."""
+        self._list_direction = direction or self._direction()
+        direction, rows = self.dict.lookup(q, self._list_direction)
         self._fill(direction, rows)
-        self.dir_label.configure(text=f"{C.TARGET_LANG.upper()} → {self._other()}" if direction == "target" else f"{self._other()} → {C.TARGET_LANG.upper()}")
+        self.dir_label.configure(text=D.direction_text(direction))
         return rows
+
+    def _relist(self):
+        """Show the current text afresh in the direction of the current list (entries gained a Turkish gloss meanwhile)."""
+        q = self.query.get().strip()
+        if q: self._list(q, self._list_direction); self._select_first()
+
+    def _relist_if_stale(self):
+        """Re-list only when a listed stored row no longer is the dictionary's object for its key (a superseded AI answer filled
+        its gloss): unsaved "Ask AI" rows of a newer query are left alone."""
+        if any(e.source != D.SOURCE_AI and self.dict.twin(e) is not e for e in self.results): self._relist()
 
     def _fill(self, direction, rows):
         for item in self.tree.get_children(): self.tree.delete(item)
+        self.tree.configure(displaycolumns=self._columns_for(direction))
+        if D.HAS_TR: self.w_tr.pack_configure(**({"before": self.w_trans} if D.target_field(direction) == "tr" else {"after": self.w_trans}))
         self.results = rows; lang = self.app.ui_lang
         names = {D.SOURCE_BUILTIN: self.t("dict.builtin"), D.SOURCE_USER: self.t("dict.user"), D.SOURCE_AI: self.t("dict.ai_source")}
         for i, e in enumerate(rows):
             extra = e.plural if e.pos == "n" and C.TARGET_LANG == "de" else e.extra
-            self.tree.insert("", "end", iid=str(i), values=(e.display, e.translation, e.pos_label(lang), extra, names.get(e.source, e.source)))
+            values = {"head": e.display, "trans": e.translation, "tr": e.tr or "—", "pos": e.pos_label(lang), "extra": extra, "src": names.get(e.source, e.source)}
+            self.tree.insert("", "end", iid=str(i), values=tuple(values[c] for c in self.COLUMNS))
 
-    def _remember(self, q):
-        if q in self.history: self.history.remove(q)
-        self.history.insert(0, q); del self.history[self.MAX_HISTORY:]
+    def _select_first(self):
+        children = self.tree.get_children()
+        if children: self.tree.selection_set(children[0]); self.tree.focus(children[0]); self.selected()
+
+    def _remember(self, q, direction):
+        """Keep (query, direction) so that a history pick re-runs the lookup exactly as it was, whatever the combobox says now."""
+        self.history = [(h, d) for h, d in self.history if h != q]
+        self.history.insert(0, (q, direction)); del self.history[self.MAX_HISTORY:]
         self.hist.delete(0, "end")
-        for h in self.history: self.hist.insert("end", h)
+        for h, _d in self.history: self.hist.insert("end", h)
 
     def _pick_history(self, _event=None):
+        """Re-run a remembered lookup in its own direction; when that side no longer finds anything (the query was last
+        re-run after a direction switch), fall back to automatic detection instead of repeating a dead end and asking the AI."""
         sel = self.hist.curselection()
-        if sel: self.query.set(self.hist.get(sel[0])); self.search()
+        if not sel or sel[0] >= len(self.history): return
+        q, direction = self.history[sel[0]]
+        if direction != "auto" and not self.dict.lookup(q, direction)[1]: direction = "auto"
+        self.query.set(q); self.search(direction=direction)
 
     def current(self):
         sel = self.tree.selection()
@@ -173,12 +246,13 @@ class DictionaryTab(BaseTab):
         elif e.extra and e.pos != "n": meta += f" · {e.extra}"
         if e.source == D.SOURCE_AI: meta += f" · {self.t('dict.ai_source')}"
         self.w_meta.configure(text=meta)
-        self.w_trans.configure(text=e.translation.replace("; ", "\n"))
+        self.w_trans.configure(text=f"{self.t('dict.translation')}: {e.translation}")
+        if D.HAS_TR: self.w_tr.configure(text=f"{self.t('dict.turkish')}: {e.tr or '—'}")
         self.w_example.configure(text=f"„{e.example}“" if e.example else "")
         self.w_note.configure(text=e.note)
         hits = [w for w in self.repos.words.search(e.headword, limit=5) if C.normalize_search(w["target"]) == C.normalize_search(e.headword)]
         self.w_bank.configure(text=f"★ {self.t('tab.words')}: {hits[0]['tr']} ({hits[0]['deck']})" if hits else "")
-        if e.source == D.SOURCE_AI and not self.dict.contains(e): self.save_btn.pack(side="left", padx=4)
+        if e.source == D.SOURCE_AI and self.dict.would_change(e): self.save_btn.pack(side="left", padx=4)
         else: self.save_btn.pack_forget()
 
     # ------------------------------------------------------------------
@@ -187,18 +261,22 @@ class DictionaryTab(BaseTab):
         if e: self.app.speak(e.headword)
 
     def random_word(self):
+        """A random built-in headword, looked up on the headword side whatever the chosen direction (EN → DE / TR → DE would
+        search the other language, find nothing and needlessly ask the AI for a word the dictionary already knows)."""
         e = self.dict.random_entry()
-        if e: self.query.set(e.headword); self.search()
+        if e: self.query.set(e.headword); self.search(direction=self._headword_direction())
 
     def copy_entry(self):
         e = self.current()
         if not e: return
-        self.clipboard_clear(); self.clipboard_append(f"{e.display} — {e.translation}"); self.app.status.set(self.t("dict.copied"))
+        self.clipboard_clear(); self.clipboard_append(f"{e.display} — {e.translation}" + (f" — {e.tr}" if e.tr else "")); self.app.status.set(self.t("dict.copied"))
 
     def add_to_bank(self):
+        """The word bank's ``tr`` field gets the first Turkish sense when the entry has one, else the first translation sense (old behaviour)."""
         e = self.current()
         if not e: return
         first = e.translation.split(";")[0].strip()
+        turkish = e.tr.split(";")[0].strip() if e.tr else ""
         fields = {"pos": e.pos, "deck": self.t("tab.dictionary"), "example_target": e.example, "example_en": e.note if C.TARGET_LANG == "en" else ""}
         if C.TARGET_LANG == "de" and e.pos == "n":
             art = e.extra.split()[0] if e.extra.split() else ""
@@ -207,7 +285,7 @@ class DictionaryTab(BaseTab):
             fields.update(gender={"m": "masculin", "f": "féminin", "mf": "masculin/féminin", "pl": "pluriel"}.get(e.gender, ""), plural=e.plural,
                           article={"m": "le", "f": "la", "pl": "les"}.get(e.gender, ""))
         if C.TARGET_LANG == "en": self.repos.words.add(e.headword, first, e.headword, **fields)
-        else: self.repos.words.add(e.headword, first, e.translation, **fields)
+        else: self.repos.words.add(e.headword, turkish or first, e.translation, **fields)
         self.app.status.set(f"{self.t('dict.added_bank')}: {e.headword}"); self.selected()
 
     # ------------------------------------------------------------------ AI
@@ -232,9 +310,13 @@ class DictionaryTab(BaseTab):
         def done(result):
             if not self.winfo_exists(): return
             client, entries = result
-            if entries and not merge and self.app.settings.get("dict_ai_autosave", True): self._autosave(entries, seq)   # cached even when superseded
+            filled, used = [], []
+            if entries and self.app.settings.get("dict_ai_autosave", True):          # cached / filled even when superseded
+                filled, used = self._fill_turkish(entries)
+                if not merge: self._autosave(entries, seq)
+                if filled and seq != self._ai_seq: self._relist_if_stale()           # the list (and self.results) must show the stored gloss
             if client is None: self._finish(seq, self.t("ai.status_off"), self.t("ai.status_off")); return
-            self._show_ai_entries(seq, q, entries, client, merge)
+            self._show_ai_entries(seq, q, entries, client, merge, filled, used)
         def error(exc):
             if not self.winfo_exists(): return
             text = f"{self.t('ai.status_off')}\n\n({exc})" if isinstance(exc, AIError) else self.t("ai.status_off")
@@ -250,34 +332,67 @@ class DictionaryTab(BaseTab):
         if seq == self._ai_seq:
             self._write_ai(text); self.app.status.set(status); return True
         if self._ai_pending is None:
-            asking = self.t("dict.ai_asking")
-            if self.ai_out.get("1.0", "end").strip() == asking: self._write_ai(text)
-            if self.app.status.get() == asking: self.app.status.set(status)
+            asking = {self.t("dict.ai_asking"), self.t("dict.tr_missing")}
+            if self.ai_out.get("1.0", "end").strip() in asking: self._write_ai(text)
+            if self.app.status.get() in asking: self.app.status.set(status)
         return False
 
-    def _show_ai_entries(self, seq: int, q: str, entries: list, client, merge: bool):
+    def _ai_direction(self, q: str, entries: list) -> str:
+        """Direction label for an AI answer: the list's fixed direction, else which side of the answer the query matched."""
+        chosen = self._list_direction
+        if chosen != "auto": return chosen
+        qn = C.normalize_search(q)
+        if qn in {C.normalize_search(e.headword) for e in entries}: return D.DEFAULT_DIRECTION
+        if any(qn in D._senses(e.translation) for e in entries): return D.direction_code(D.OTHER_LANG, C.TARGET_LANG)   # "to procrastinate" -> aufschieben
+        if D.HAS_TR and any(qn in D._senses(e.tr) for e in entries): return D.direction_code("tr", C.TARGET_LANG)
+        return self.dict.lookup(q)[0]
+
+    def _show_ai_entries(self, seq: int, q: str, entries: list, client, merge: bool, filled: list = (), used: list = ()):
         provider = f"{self.app.provider_name(client)} · {getattr(client, 'last_model', '') or self._model_for(client)}"
         if not entries:
             self._finish(seq, f"{self.t('dict.ai_none')}\n\n— {self.t('dict.answered_by')}: {provider}", self.t("dict.ai_none")); return
         lang = self.app.ui_lang; lines = []
         for e in entries:
             head = e.display + (f"  ({e.extra})" if e.extra and not (e.pos == "n" and C.TARGET_LANG == "de") else (f"  ({e.plural})" if e.plural else ""))
-            lines.append(f"• {head}  [{e.pos_label(lang)}]\n    → {e.translation}")
+            lines.append(f"• {head}  [{e.pos_label(lang)}]\n    {self.t('dict.translation')}: {e.translation}")
+            if D.HAS_TR: lines.append(f"    {self.t('dict.turkish')}: {e.tr or '—'}")
             if e.example: lines.append(f"    „{e.example}“")
             if e.note: lines.append(f"    ({e.note})")
         lines.append(f"\n— {self.t('dict.answered_by')}: {provider}")
-        if not self._finish(seq, "\n".join(lines), f"'{q}': {len(entries)} {self.t('dict.ai_results')}"): return
-        rows = entries + ([e for e in self.results if e.source != D.SOURCE_AI] if merge else [])
-        qn = C.normalize_search(q)
-        if qn in {C.normalize_search(e.headword) for e in entries}:
-            direction = "target"
-        elif any(qn in D._senses(e.translation) for e in entries):
-            direction = "translation"                       # "to procrastinate" -> aufschieben: the query was the other language
+        status = f"{self.t('dict.tr_filled')}: {', '.join(e.headword for e in filled)}" if filled else f"'{q}': {len(entries)} {self.t('dict.ai_results')}"
+        if not self._finish(seq, "\n".join(lines), status): return
+        if filled:      # existing entries gained their Turkish gloss: list them afresh, keep only genuinely new AI entries on top
+            direction, local = self.dict.lookup(q, self._list_direction)
+            rows = [e for e in entries if e not in used and not self.dict.contains(e)] + local
         else:
-            direction = self.dict.lookup(q)[0]
+            direction = self._ai_direction(q, entries)
+            rows = entries + ([e for e in self.results if e.source != D.SOURCE_AI] if merge else [])
         self._fill(direction, rows)
-        self.dir_label.configure(text=f"{C.TARGET_LANG.upper()} → {self._other()}" if direction == "target" else f"{self._other()} → {C.TARGET_LANG.upper()}")
-        first = self.tree.get_children()[0]; self.tree.selection_set(first); self.tree.focus(first); self.selected()
+        self.dir_label.configure(text=D.direction_text(direction))
+        self._select_first()
+
+    def _fill_turkish(self, entries: list) -> tuple[list, list]:
+        """Existing entries get Turkish senses from a matching AI answer - in memory and in SQLite - so the dictionary never
+        grows a duplicate just to carry the Turkish side. Returns ``(filled, used)``: the updated stored entries and the AI
+        answers that were merged into them (those need no row of their own in the list).
+
+        An answer with an exact twin (headword, pos, translation) extends that twin's gloss; those are handled first so that
+        the exact match wins. Without a twin, only same-headword entries that still lack a gloss *and* share an English sense
+        with the answer are filled: ``Schloss`` = castle must never receive the gloss of ``Schloss`` = lock."""
+        if not D.HAS_TR: return [], []
+        filled, used = [], []
+        for a in sorted((a for a in entries if a.tr), key=lambda a: self.dict.twin(a) is None):
+            twin = self.dict.twin(a)
+            if twin is not None:
+                targets = [twin] if self.dict.would_change(a) else []
+            else:
+                senses = set(D._senses(a.translation))
+                targets = [e for e in self.dict.find(a.headword, a.pos) if not e.tr and senses & set(D._senses(e.translation))]
+            for e in targets:
+                self._persist([D.Entry(e.headword, e.pos, e.extra, e.translation, e.note, D.SOURCE_AI, e.example, a.tr)])
+                filled.append(self.dict.twin(e))
+            if targets: used.append(a)
+        return filled, used
 
     def _autosave(self, entries: list, seq: int) -> int:
         """Cache a fallback answer, skipping headwords the dictionary already knows (near-duplicates of built-in, user or
@@ -287,18 +402,32 @@ class DictionaryTab(BaseTab):
         added = self._persist(fresh) if fresh else 0
         if added and seq != self._ai_seq and not self.tree.get_children():
             q = self.query.get().strip()
-            if q: self._list(q)
+            if q: self._list(q, self._list_direction)
         return added
 
     def _persist(self, entries: list) -> int:
-        """Store AI entries in SQLite and in the in-memory dictionary; returns how many were new to the dictionary."""
-        self.repos.dictionary.add_many([(e.headword, e.translation, e.pos, e.extra, e.note, e.example) for e in entries], D.SOURCE_AI)
+        """Store AI entries in SQLite and in the in-memory dictionary; returns how many were new to the dictionary.
+
+        An entry whose twin is already stored only contributes Turkish senses (:meth:`gca.dictionary.Dictionary.merge_tr`):
+        the stored row is updated in place, or, for a built-in twin without a row, an ``ai`` row carrying the gloss is
+        stored and merged into the built-in entry on the next start. A twin that gains nothing is left alone."""
+        rows = []
+        for e in entries:
+            twin = self.dict.twin(e)
+            if twin is not None:
+                tr = self.dict.merge_tr(twin, e)
+                if tr == twin.tr or self.repos.dictionary.set_tr(twin.headword, twin.translation, tr): continue
+            rows.append((e.headword, e.translation, e.pos, e.extra, e.note, e.example, e.tr))
+        if rows: self.repos.dictionary.add_many(rows, D.SOURCE_AI)
         added = self.dict.extend(entries); self._update_count(); return added
 
     def save_ai_entry(self):
         e = self.current()
         if not e or e.source != D.SOURCE_AI: return
-        self._persist([e]); self.app.status.set(f"{self.t('dict.ai_saved')}: {e.headword}"); self.selected()
+        merged = self.dict.contains(e)                      # an exact twin exists: saving only adds the Turkish senses to it
+        self._persist([e]); self.app.status.set(f"{self.t('dict.ai_saved')}: {e.headword}")
+        if merged and self.query.get().strip(): self._relist()
+        else: self.selected()
 
     def _write_ai(self, text):
         self.ai_out.configure(state="normal"); self.ai_out.delete("1.0", "end"); self.ai_out.insert("1.0", text); self.ai_out.configure(state="disabled")
@@ -307,11 +436,12 @@ class DictionaryTab(BaseTab):
     def add_entry(self):
         dlg = tk.Toplevel(self); dlg.title(self.t("dict.add_entry")); dlg.configure(background=self.palette["bg"]); dlg.transient(self.app); dlg.grab_set()
         fields = {}
-        q = self.query.get().strip(); direction, _ = self.dict.lookup(q) if q else ("target", [])
-        specs = [("headword", self.t("dict.headword"), q if direction == "target" else ""),
-                 ("translation", self.t("dict.translation"), q if direction != "target" else ""),
-                 ("pos", self.t("words.pos") + " (n/v/adj/…)", ""), ("extra", self.t("dict.extra"), ""), ("note", self.t("dict.note"), ""),
-                 ("example", self.t("dict.example"), "")]
+        q = self.query.get().strip(); src = D.source_field(self.dict.lookup(q, self._direction())[0]) if q else ""
+        specs = [("headword", self.t("dict.headword"), q if src == "headword" else ""),
+                 ("translation", self.t("dict.translation"), q if src == "translation" else "")]
+        if D.HAS_TR: specs.append(("tr", self.t("dict.turkish"), q if src == "tr" else ""))
+        specs += [("pos", self.t("words.pos") + " (n/v/adj/…)", ""), ("extra", self.t("dict.extra"), ""), ("note", self.t("dict.note"), ""),
+                  ("example", self.t("dict.example"), "")]
         for i, (key, label, value) in enumerate(specs):
             ttk.Label(dlg, text=label).grid(row=i, column=0, sticky="w", padx=12, pady=5)
             var = tk.StringVar(value=value); ttk.Entry(dlg, textvariable=var, width=40).grid(row=i, column=1, padx=12, pady=5); fields[key] = var
@@ -319,8 +449,9 @@ class DictionaryTab(BaseTab):
             head, trans = fields["headword"].get().strip(), fields["translation"].get().strip()
             if not head or not trans: messagebox.showwarning(C.APP_NAME, self.t("dict.required"), parent=dlg); return
             pos, extra, note, example = (fields[k].get().strip() for k in ("pos", "extra", "note", "example"))
-            self.repos.dictionary.add(head, trans, pos, extra, note, D.SOURCE_USER, example)
-            self.dict.extend([D.Entry(head, pos, extra, trans, note, D.SOURCE_USER, example)])
+            tr = fields["tr"].get().strip() if "tr" in fields else ""
+            self.repos.dictionary.add(head, trans, pos, extra, note, D.SOURCE_USER, example, tr)
+            self.dict.extend([D.Entry(head, pos, extra, trans, note, D.SOURCE_USER, example, tr)])
             dlg.destroy(); self._update_count(); self.query.set(head); self.search()
         ttk.Button(dlg, text=self.t("g.save"), style="Accent.TButton", command=save).grid(row=len(specs), column=1, sticky="e", padx=12, pady=12)
         dlg.bind("<Return>", lambda _e: save()); dlg.bind("<Escape>", lambda _e: dlg.destroy())
@@ -330,7 +461,7 @@ class DictionaryTab(BaseTab):
         if not path: return
         try: entries = D.read_table(Path(path))
         except Exception as exc: messagebox.showerror(C.APP_NAME, str(exc), parent=self); return
-        n = self.repos.dictionary.add_many([(e.headword, e.translation, e.pos, e.extra, e.note, e.example) for e in entries], D.SOURCE_USER)
+        n = self.repos.dictionary.add_many([(e.headword, e.translation, e.pos, e.extra, e.note, e.example, e.tr) for e in entries], D.SOURCE_USER)
         self.dict.extend(entries); self._update_count(); self.app.status.set(f"{n} {self.t('dict.imported')}")
 
     def export_file(self):

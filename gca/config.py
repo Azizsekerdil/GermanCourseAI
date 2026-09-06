@@ -12,7 +12,7 @@ APP_NAME = "German Course AI"
 APP_SLUG = "GermanCourseAI"
 TARGET_LANG = "de"
 TARGET_LANG_NAME = "Deutsch"
-VERSION = "1.1.2"
+VERSION = "1.2.0"
 HOME_ENV = "GCA_HOME"
 API_KEY_ENV = f"{APP_SLUG.upper()}_API_KEY"              # overrides the stored alternative-endpoint key
 SECRETS_FILE_ENV = f"{APP_SLUG.upper()}_SECRETS_FILE"    # "1" forces the JSON secret store (tests)
@@ -53,6 +53,19 @@ LMSTUDIO_BASE = "http://127.0.0.1:1234"
 NIM_BASE = "https://integrate.api.nvidia.com/v1"
 ALT_MODEL_DEFAULT = "meta/llama-3.1-8b-instruct"
 DICT_AI_POLICIES = ("auto", "local", "alt", "off")      # dictionary AI provider policy
+
+
+def _dict_directions(target: str) -> tuple[str, ...]:
+    """Dictionary direction codes: ``auto`` plus every fixed pair between the target language, English and Turkish.
+
+    German: auto | de2en | en2de | de2tr | tr2de. For the English app the translation side already *is* Turkish,
+    so only auto | en2tr | tr2en exist."""
+    if target == "en":
+        return ("auto", "en2tr", "tr2en")
+    return ("auto", f"{target}2en", f"en2{target}", f"{target}2tr", f"tr2{target}")
+
+
+DICT_DIRECTIONS = _dict_directions(TARGET_LANG)
 MODEL_PROFILES = {
     "chat": ["qwen2.5-7b-instruct", "llama-3.1-8b-instruct"],
     "grammar": ["qwen2.5-7b-instruct", "qwen2.5-14b-instruct"],
@@ -79,6 +92,7 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "alt_model": ALT_MODEL_DEFAULT,
     "dict_ai": "auto",                  # auto | local | alt | off
     "dict_ai_autosave": True,
+    "dict_direction": "auto",           # one of DICT_DIRECTIONS
     "cefr": "A1",
     "last_pdf": "",
 }
@@ -112,6 +126,8 @@ def load_settings() -> dict[str, Any]:
         result["ui_lang"] = "tr"
     if result.get("dict_ai") not in DICT_AI_POLICIES:
         result["dict_ai"] = "auto"
+    if result.get("dict_direction") not in DICT_DIRECTIONS:
+        result["dict_direction"] = "auto"
     if not str(result.get("alt_base") or "").strip():
         result["alt_base"] = NIM_BASE
     return result
@@ -137,8 +153,14 @@ def normalize_exact(text: str) -> str:
 
 
 def normalize_search(text: str) -> str:
-    """Search-only equivalence: ä/ae, ö/oe, ü/ue and ß/ss."""
-    value = normalize_exact(text).lower()
+    """Search-only equivalence: ä/ae, ö/oe, ü/ue and ß/ss.
+
+    Turkish letters (ç ğ ş, and ö/ü through the same folding) match themselves. The dotted capital İ lowers to a plain
+    ``i`` (``str.lower`` would leave a combining dot) and, because ``I`` also lowers to ``i``, dotless ı is folded to
+    ``i`` too, so ``Işık``, ``ışık`` and ``isik``-style input all compare equal - search only, never spelling checks.
+    The circumflex (``kâğıt``, ``dükkân``, ``resmî``) is folded as well, because most people type these words without it."""
+    value = normalize_exact(text).replace("İ", "i").lower().replace("ı", "i")
+    value = value.replace("â", "a").replace("î", "i").replace("û", "u")
     value = value.replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
     value = _PUNCT.sub(" ", value)
     return re.sub(r"\s+", " ", value).strip()
