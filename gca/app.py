@@ -11,6 +11,7 @@ from .db import Database, Repos
 from .i18n import LANG_NAMES, t
 from .tts import Speaker
 from .ui import FONT, apply_theme
+from .tabs.dictionary import DictionaryTab
 from .tabs.learning import ExamTab, StudyTab, WordsTab
 from .tabs.labs import GrammarTab, OrthographyTab, PronunciationTab
 from .tabs.reading import LibraryTab, PDFTab, ResourcesTab
@@ -19,7 +20,7 @@ from .tabs.system import GuideTab, PacksTab, ProgressTab, SettingsTab, TokensTab
 
 TAB_SPECS = [
     ("tab.study", StudyTab, "↻", "grp.learn"), ("tab.words", WordsTab, "Aa", "grp.learn"),
-    ("tab.exam", ExamTab, "✓", "grp.learn"), ("tab.orthography", OrthographyTab, "Äß", "grp.lab"),
+    ("tab.dictionary", DictionaryTab, "📖", "grp.learn"), ("tab.exam", ExamTab, "✓", "grp.learn"), ("tab.orthography", OrthographyTab, "Äß", "grp.lab"),
     ("tab.pronunciation", PronunciationTab, "◖", "grp.lab"), ("tab.grammar", GrammarTab, "§", "grp.lab"),
     ("tab.resources", ResourcesTab, "◇", "grp.read"), ("tab.pdf", PDFTab, "▤", "grp.read"),
     ("tab.library", LibraryTab, "▣", "grp.read"), ("tab.ai", AITab, "✦", "grp.practice"),

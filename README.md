@@ -9,6 +9,7 @@ German Course AI, Almanca öğrenimi için yerel veriyi önceleyen bağımsız b
 - SM-2 ve Leitner tabanlı aralıklı tekrar; günlük hedef ve seri
 - 160 yerleşik A1 kelime; isimlerde artikel, cinsiyet ve çoğul
 - Almanca-Türkçe-İngilizce sözlük, favoriler, yanlış kelimeler
+- Çift yönlü **Almanca ↔ İngilizce sözlük** sekmesi: 1.260+ gömülü madde (artikel + çoğul), yön otomatik, çoğul/umlaut/ß toleranslı arama, seslendirme, AI'a sorma, kelime bankasına ekleme, CSV/TSV içe/dışa aktarma
 - Kart, çoktan seçmeli, yazma, dinleme ve eşleştirme çalışma seçenekleri
 - CEFR A1-C1 profili ve puanlanan sınav motoru
 - Ä, Ö, Ü, ß, isimlerin büyük yazımı, `ch`, `sch`, `sp`, `st`, `z`, `w`, `v`, `j`, bileşik kelime ve vurgu laboratuvarı
@@ -65,7 +66,7 @@ LM Studio kapalıysa uygulama çalışmaya devam eder; yalnız AI düğmeleri er
 python -m pytest -q
 ```
 
-Testler pencere/17 sayfa kurulumu, anlık ve kalıcı dil değişimi, i18n bütünlüğü, SQLite geçişi, 150+ kelime, SRS, kart/sınav akışı, `ä/ae` ve `ß/ss` araması, doğru yazım kontrolü, Unicode CSV, AI çevrimdışı davranışı, token gizliliği ve paket turunu kapsar.
+Testler pencere/18 sayfa kurulumu, anlık ve kalıcı dil değişimi, i18n bütünlüğü, SQLite geçişi, 150+ kelime, 1.260+ maddelik sözlük motoru (iki yönlü arama, içe/dışa aktarma, SQLite kullanıcı maddeleri), SRS, kart/sınav akışı, `ä/ae` ve `ß/ss` araması, doğru yazım kontrolü, Unicode CSV, AI çevrimdışı davranışı, token gizliliği ve paket turunu kapsar.
 
 ## Proje yapısı
 

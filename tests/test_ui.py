@@ -14,7 +14,7 @@ def app():
 
 
 def test_window_opens_and_all_tabs_build(app):
-    assert len(app._tabs) == len(TAB_SPECS) == 17
+    assert len(app._tabs) == len(TAB_SPECS) == 18
     for key, _cls, _icon, _group in TAB_SPECS:
         app.select(key); app.update(); assert app.current_page().winfo_exists()
 

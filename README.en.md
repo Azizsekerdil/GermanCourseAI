@@ -9,6 +9,7 @@ German Course AI is an independent Windows desktop learning app built around loc
 - SM-2/Leitner spaced review, daily goal and streak
 - 160 built-in A1 words with noun article, gender and plural
 - German-Turkish-English dictionary, favorites and mistake drills
+- Bidirectional **German ↔ English dictionary** tab: 1,260+ built-in entries with article and plural, automatic direction, plural/umlaut/ß-tolerant search, TTS, AI lookup, add-to-word-bank, CSV/TSV import/export
 - Cards, multiple choice, typing, listening and matching study modes
 - CEFR A1-C1 profiles and a scored exam engine
 - German spelling and sound lab for umlauts, ß, capitalization, vowel length, major consonant patterns, compounds and stress
@@ -62,7 +63,7 @@ Prompt and response text is not persisted. The token ledger stores only model, t
 python -m pytest -q
 ```
 
-The suite covers the window and all 17 pages, immediate/persistent language switching, complete i18n catalogs, migrations, 150+ seed words, SRS, study/exam flows, German search equivalence, strict spelling, Unicode CSV, offline AI behavior, token privacy and pack round-trips.
+The suite covers the window and all 18 pages, immediate/persistent language switching, complete i18n catalogs, migrations, 150+ seed words, the 1,260+-entry dictionary engine (two-way lookup, import/export, SQLite user entries), SRS, study/exam flows, German search equivalence, strict spelling, Unicode CSV, offline AI behavior, token privacy and pack round-trips.
 
 ## Structure
 

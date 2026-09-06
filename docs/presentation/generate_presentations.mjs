@@ -166,7 +166,7 @@ async function buildDeck(cfg) {
     txt(s, cfg.closeSub, 42, 286, 930, 40, 22, { color: MUTED });
     txt(s, cfg.metricWords, 42, 418, 260, 60, 42, { bold: true, color: cfg.accentDark });
     txt(s, cfg.metricTests, 368, 418, 260, 60, 42, { bold: true });
-    txt(s, "17", 694, 418, 160, 60, 42, { bold: true });
+    txt(s, "18", 694, 418, 160, 60, 42, { bold: true });
     txt(s, cfg.metricWordsLabel, 42, 490, 260, 88, 17, { color: MUTED });
     txt(s, cfg.metricTestsLabel, 368, 490, 260, 88, 17, { color: MUTED });
     txt(s, cfg.metricTabsLabel, 694, 490, 220, 88, 17, { color: MUTED });
@@ -211,7 +211,7 @@ const configs = [
     uiTitleTarget: "Lernen ohne Reibung",
     uiTitleTr: "Tek uygulama, üç arayüz",
     uiTitleEn: "One app, three interfaces",
-    uiBodyTarget: "17 Bereiche verbinden Wiederholung, Wortschatz, Prüfung, Grammatik und Praxis in einem ruhigen Windows-Arbeitsraum.",
+    uiBodyTarget: "18 Bereiche verbinden Wiederholung, Wortschatz, ein zweisprachiges Wörterbuch DE-EN, Prüfung, Grammatik und Praxis in einem ruhigen Windows-Arbeitsraum.",
     uiBodyTr: "Dil seçimi anında kaydedilir; uygulama çevrimdışı çalışmaya devam eder.",
     uiBodyEn: "The language choice persists instantly, and core learning stays available offline.",
     realCaption: "Gerçek EXE ekranı · Real executable · Echte Anwendung",
@@ -219,13 +219,13 @@ const configs = [
     engineSub: "Öğrenme motoru hatırlar · Die Lernmaschine merkt sich den Fortschritt",
     langs: ["Türkçe", "English", "Deutsch"],
     engineHeads: ["Her gün doğru sıra", "Practice with evidence", "Fortschritt bleibt lokal"],
-    engineBodies: ["SM-2 ve Leitner, yeni ve gecikmiş kartları günlük bir sıraya dönüştürür.", "160 A1 entries, strict spelling, exams, favorites and mistakes share one SQLite record.", "Wiederholung, Fehler, Favoriten und Prüfungen werden lokal und nachvollziehbar gespeichert."],
+    engineBodies: ["SM-2 ve Leitner, yeni ve gecikmiş kartları günlük bir sıraya dönüştürür.", "160 A1 entries, a 1,260-entry DE-EN dictionary, strict spelling, exams, favorites and mistakes share one SQLite record.", "Wiederholung, Fehler, Favoriten und Prüfungen werden lokal und nachvollziehbar gespeichert."],
     catalogLine: "Kaynak kataloğu / resource catalog / Quellenkatalog: Wikibooks · Tatoeba · LibriVox · Project Gutenberg",
     wikibooks: "https://en.wikibooks.org/wiki/German",
     labTitleTarget: "Deutsch verdient präzise Werkzeuge",
     labTitleTr: "Almancaya özgü laboratuvar", labTitleEn: "A German-specific language lab",
-    labExamples: ["der Tisch · die Tische", "ä · ö · ü", "Straße · Grüße", "Ich heiße Alex."],
-    labDescriptions: ["Artikel + çoğul birlikte · article and plural together · Artikel und Plural zusammen", "Umlaut araması kontrollü · controlled umlaut search · kontrollierte Umlautsuche", "ß aramada esnek, yanıtta kesin · flexible search, strict answer · flexible Suche, genaue Antwort", "Yazım ve ses eşleşir · spelling meets sound · Schrift trifft Laut"],
+    labExamples: ["der Tisch · die Tische", "ä · ö · ü", "Straße · Grüße", "Häuser → das Haus"],
+    labDescriptions: ["Artikel + çoğul birlikte · article and plural together · Artikel und Plural zusammen", "Umlaut araması kontrollü · controlled umlaut search · kontrollierte Umlautsuche", "ß aramada esnek, yanıtta kesin · flexible search, strict answer · flexible Suche, genaue Antwort", "Sözlük çoğuldan tekili bulur · dictionary resolves plurals · Wörterbuch findet den Singular"],
     privacyTitleTr: "AI isteğe bağlı; mahremiyet varsayılan",
     privacyTitleEn: "AI is optional; privacy is the default", privacyTitleTarget: "KI ist optional; Datenschutz ist Standard",
     flowLabels: ["01 · CONTEXT", "02 · LOCAL MODEL", "03 · RECORD"],
@@ -235,7 +235,7 @@ const configs = [
     closeKicker: "TESLİME HAZIR · READY TO DELIVER · BEREIT ZUR AUSLIEFERUNG",
     closeTitle: "Hazır. Ready. Bereit.", closeWords: ["Hazır.", "Ready.", "Bereit."],
     closeSub: "Bağımsız Windows uygulaması, belgeler, testler ve sunum tek pakette.",
-    metricWords: "160", metricTests: "29 / 29",
+    metricWords: "160", metricTests: "37 / 37",
     metricWordsLabel: "benzersiz A1 kelime\nunique A1 words\neindeutige A1-Wörter",
     metricTestsLabel: "otomatik test geçti\nautomated tests passed\nautomatische Tests bestanden",
     metricTabsLabel: "öğrenme alanı\nlearning areas\nLernbereiche",
@@ -260,7 +260,7 @@ const configs = [
     uiTitleTarget: "Apprendre sans friction",
     uiTitleTr: "Tek uygulama, üç arayüz",
     uiTitleEn: "One app, three interfaces",
-    uiBodyTarget: "17 espaces relient révision, vocabulaire, examen, grammaire et pratique dans un atelier Windows cohérent.",
+    uiBodyTarget: "18 espaces relient révision, vocabulaire, dictionnaire bilingue FR-EN, examen, grammaire et pratique dans un atelier Windows cohérent.",
     uiBodyTr: "Dil seçimi anında kaydedilir; uygulama çevrimdışı çalışmaya devam eder.",
     uiBodyEn: "The language choice persists instantly, and core learning stays available offline.",
     realCaption: "Gerçek EXE ekranı · Real executable · Application réelle",
@@ -268,13 +268,13 @@ const configs = [
     engineSub: "Öğrenme motoru hatırlar · Le moteur d’apprentissage retient vos progrès",
     langs: ["Türkçe", "English", "Français"],
     engineHeads: ["Her gün doğru sıra", "Practice with evidence", "Les progrès restent locaux"],
-    engineBodies: ["SM-2 ve Leitner, yeni ve gecikmiş kartları günlük bir sıraya dönüştürür.", "162 A1 entries, strict accented answers, exams, favorites and mistakes share one SQLite record.", "Révisions, erreurs, favoris et examens sont enregistrés localement et restent explicables."],
+    engineBodies: ["SM-2 ve Leitner, yeni ve gecikmiş kartları günlük bir sıraya dönüştürür.", "162 A1 entries, a 1,210-entry FR-EN dictionary, strict accented answers, exams, favorites and mistakes share one SQLite record.", "Révisions, erreurs, favoris et examens sont enregistrés localement et restent explicables."],
     catalogLine: "Kaynak kataloğu / resource catalog / catalogue de ressources: Wikibooks · Tatoeba · LibriVox · Project Gutenberg",
     wikibooks: "https://en.wikibooks.org/wiki/French",
     labTitleTarget: "Le français mérite des outils précis",
     labTitleTr: "Fransızcaya özgü laboratuvar", labTitleEn: "A French-specific language lab",
-    labExamples: ["l’école · les écoles", "é · è · ê · ç", "cœur · sœur · œuvre", "J’aime le français."],
-    labDescriptions: ["Artikel ve elision · articles and elision · articles et élision", "Aksan araması kontrollü · controlled accent search · recherche d’accents contrôlée", "œ aramada esnek, yanıtta kesin · flexible search, strict answer · recherche souple, réponse exacte", "Kesme işareti anlamlıdır · apostrophes matter · l’apostrophe compte"],
+    labExamples: ["l’école · les écoles", "é · è · ê · ç", "cœur · sœur · œuvre", "yeux → l’œil (m)"],
+    labDescriptions: ["Artikel ve elision · articles and elision · articles et élision", "Aksan araması kontrollü · controlled accent search · recherche d’accents contrôlée", "œ aramada esnek, yanıtta kesin · flexible search, strict answer · recherche souple, réponse exacte", "Sözlük düzensiz çoğulu çözer · dictionary resolves irregular plurals · le dictionnaire retrouve le singulier"],
     privacyTitleTr: "AI isteğe bağlı; mahremiyet varsayılan",
     privacyTitleEn: "AI is optional; privacy is the default", privacyTitleTarget: "L’IA est facultative; la confidentialité est la règle",
     flowLabels: ["01 · CONTEXT", "02 · LOCAL MODEL", "03 · RECORD"],
@@ -284,7 +284,7 @@ const configs = [
     closeKicker: "TESLİME HAZIR · READY TO DELIVER · PRÊT À LIVRER",
     closeTitle: "Hazır. Ready. Prêt.", closeWords: ["Hazır.", "Ready.", "Prêt."],
     closeSub: "Bağımsız Windows uygulaması, belgeler, testler ve sunum tek pakette.",
-    metricWords: "162", metricTests: "29 / 29",
+    metricWords: "162", metricTests: "37 / 37",
     metricWordsLabel: "benzersiz A1 kelime\nunique A1 words\nmots A1 uniques",
     metricTestsLabel: "otomatik test geçti\nautomated tests passed\ntests automatisés réussis",
     metricTabsLabel: "öğrenme alanı\nlearning areas\nespaces d’apprentissage",

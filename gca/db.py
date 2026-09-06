@@ -65,6 +65,10 @@ CREATE TABLE IF NOT EXISTS grammar_progress(
  profile_id INTEGER NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
  topic TEXT NOT NULL, correct INTEGER NOT NULL DEFAULT 0, wrong INTEGER NOT NULL DEFAULT 0,
  PRIMARY KEY(profile_id, topic));
+CREATE TABLE IF NOT EXISTS dict_entries(
+ id INTEGER PRIMARY KEY, headword TEXT NOT NULL, translation TEXT NOT NULL,
+ pos TEXT NOT NULL DEFAULT '', extra TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '',
+ created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, UNIQUE(headword, translation));
 """
 
 
@@ -302,9 +306,26 @@ class GrammarRepo:
                         (profile_id, topic, correct, wrong))
 
 
+class DictRepo:
+    """User-added dictionary entries layered on top of the built-in dictionary."""
+    def __init__(self, db: Database): self.db = db
+    def all(self): return [dict(r) for r in self.db.query("SELECT * FROM dict_entries ORDER BY headword")]
+    def count(self) -> int: return int(self.db.one("SELECT COUNT(*) n FROM dict_entries")["n"])
+    def add_many(self, rows) -> int:
+        """rows: (headword, translation[, pos[, extra[, note]]]). Returns the number actually inserted."""
+        before = self.count()
+        self.db.conn.executemany("INSERT OR IGNORE INTO dict_entries(headword,translation,pos,extra,note) VALUES(?,?,?,?,?)",
+                                 [(r[0].strip(), r[1].strip(), (r[2] if len(r) > 2 else "") or "", (r[3] if len(r) > 3 else "") or "",
+                                   (r[4] if len(r) > 4 else "") or "") for r in rows if r and r[0].strip() and r[1].strip()])
+        self.db.conn.commit(); return self.count() - before
+    def add(self, headword: str, translation: str, pos: str = "", extra: str = "", note: str = "") -> int:
+        return self.add_many([(headword, translation, pos, extra, note)])
+    def clear(self) -> None: self.db.execute("DELETE FROM dict_entries")
+
+
 class Repos:
     def __init__(self, db: Database):
         self.db = db; self.profiles = ProfileRepo(db); self.words = WordRepo(db)
         self.progress = ProgressRepo(db); self.study = StudyRepo(db); self.exams = ExamRepo(db)
         self.tokens = TokenRepo(db); self.notes = NoteRepo(db); self.resources = ResourceRepo(db)
-        self.grammar = GrammarRepo(db)
+        self.grammar = GrammarRepo(db); self.dictionary = DictRepo(db)
