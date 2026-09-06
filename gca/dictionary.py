@@ -180,6 +180,29 @@ def _norm(text: str) -> str:
     return C.normalize_search(text)
 
 
+# A Turkish query may be typed on an ASCII keyboard or in capitals: the comparison key folds the
+# Turkish letters ("sinav" == "SINAV" == "sınav", "cok" == "çok"). Only the side that carries the
+# Turkish text uses it, so the target-language folding rules (umlauts, accents) stay untouched.
+_TR_FOLD = str.maketrans({"ı": "i", "İ": "i", "ş": "s", "Ş": "s", "ğ": "g", "Ğ": "g", "ç": "c",
+                          "Ç": "c", "ö": "o", "Ö": "o", "ü": "u", "Ü": "u", "â": "a", "î": "i", "û": "u"})
+
+
+def tr_fold(text: str) -> str:
+    """Fold the Turkish letters of a raw string onto their ASCII counterparts."""
+    return (text or "").translate(_TR_FOLD)
+
+
+# A fold-only match ranks below a direct one: someone typing "ask" wants English "to ask", not
+# Turkish "aşk"; a query like "sinav" that matches nothing directly is still found.
+FOLD_MAX = 59        # folded scores are scaled onto this ceiling: exact 59, prefix 35, substring 5
+
+
+def _tr_norm(text: str) -> str:
+    """Comparison key for the Turkish side: fold FIRST, then normalise, so the target-language
+    rules (German ö -> oe, French accent stripping) never reshape a Turkish word."""
+    return _norm(tr_fold(text))
+
+
 _SENSE_SPLIT = re.compile(r"[;/](?![^(]*\))")      # ";" or "/" outside a parenthesis: "ona (erkek/nesne)" is one sense
 
 
@@ -331,6 +354,7 @@ class Dictionary:
             sides = (forced,) if forced else _SIDES
         else:
             sides = (source_field(direction),)
+        q_tr = _tr_norm(query)                      # Turkish side key: "sinav" == "SINAV" == "sınav"
         scored: list[tuple[int, int, int, Entry]] = []
         best = {side: 0 for side in _SIDES}
         for e in self._entries:
@@ -346,8 +370,9 @@ class Dictionary:
                 if not s and not scores.get("headword") and e.note and len(q) >= 3:
                     s = 8 if _score(q, _norm(e.note), []) >= 30 else 0      # definition / usage note as a last resort
                 scores["translation"] = s
-            if "tr" in sides and e.tr:
-                scores["tr"] = _score(q, _norm(e.tr), _senses(e.tr))
+            if "tr" in sides and e.tr:                       # direct match first, folded key as a fallback
+                plain = _score(q, _norm(e.tr), _senses(e.tr))
+                scores["tr"] = plain or _score(q_tr, _tr_norm(e.tr), [_tr_norm(x) for x in _senses(e.tr)]) * FOLD_MAX // 100
             top = max(scores.values(), default=0)
             if not top:
                 continue

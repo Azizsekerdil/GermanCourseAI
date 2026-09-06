@@ -285,3 +285,24 @@ def test_dict_entries_gets_a_tr_column_on_old_databases(tmp_path):
     assert d.lookup("Brezel")[1][0].tr == "simit" and d.lookup("Kipferl")[1][0].source == D.SOURCE_AI
     assert Database(path).query("PRAGMA table_info(dict_entries)")                    # reopening is idempotent
     db.close()
+
+
+def test_turkish_queries_match_without_turkish_letters_or_in_capitals():
+    """A Turkish query typed on an ASCII keyboard or in capitals still matches; display text is unchanged."""
+    dic = D.Dictionary(D.builtin_entries())
+    tr2t = "tr2" + T if T != "en" else "tr2en"
+    for query in ("görmek", "gormek", "GORMEK", "GÖRMEK"):
+        _dir, rows = dic.lookup(query, tr2t)
+        assert rows, query
+        gloss = rows[0].tr or rows[0].translation
+        assert "görmek" in gloss, (query, gloss)           # the stored spelling keeps its Turkish letters
+    assert D._tr_norm("ÖĞRENCİ") == "ogrenci" and D._tr_norm("Işık") == D._tr_norm("ISIK") == "isik"
+    assert dic.lookup("ogrenci", tr2t)[1], "ASCII query must find öğrenci"
+
+
+def test_folded_match_ranks_below_a_direct_match():
+    """A fold-only hit must not outrank a direct hit on another side (FOLD_MAX)."""
+    assert D.FOLD_MAX < 60
+    dic = D.Dictionary(D.builtin_entries())
+    direct = dic.lookup("cok", "tr2" + T if T != "en" else "tr2en")[1]
+    assert direct and (direct[0].tr or direct[0].translation).startswith("çok")
