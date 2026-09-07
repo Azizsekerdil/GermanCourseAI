@@ -4,6 +4,8 @@ German Course AI is an independent Windows desktop learning app built around loc
 
 > Core learning features and student data are local. Opening resource links and using optional remote services requires the internet, so the app does not make a misleading “100% offline” claim.
 
+User guide: [docs/USER_GUIDE.md](docs/USER_GUIDE.md) — installation, the 18 screens, the dictionary, the AI setup and troubleshooting.
+
 ## Features
 
 - SM-2/Leitner spaced review, daily goal and streak

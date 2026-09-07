@@ -18,7 +18,7 @@
 
 ## 1. Bu kılavuz hakkında
 
-Bu belge **German Course AI** sürüm **1.2.0** için yazılmıştır. Uygulama, Almanca öğrenmek için tasarlanmış bağımsız bir masaüstü programıdır: Windows ve macOS üzerinde çalışır, verilerinizi kendi bilgisayarınızda tutar ve yapay zeka dışındaki her özelliği internet olmadan yerine getirir.
+Bu belge **German Course AI** sürüm **1.2.1** için yazılmıştır. Uygulama, Almanca öğrenmek için tasarlanmış bağımsız bir masaüstü programıdır: Windows ve macOS üzerinde çalışır, verilerinizi kendi bilgisayarınızda tutar ve yapay zeka dışındaki her özelliği internet olmadan yerine getirir.
 
 Kılavuzu baştan sona okumanız gerekmez: ilk kurulum için [2](#2-kurulum) ve [3](#3-ilk-açılış), bir ekranın ne yaptığı için [4](#4-ekranlar), sözlüğün ayrıntıları için [5](#5-sözlük-ayrıntılı) bölümüne bakın.
 
@@ -561,6 +561,7 @@ Pratik ipuçları:
 | **v1.0.0** | 18 sayfalık kabuk; SM-2 / Leitner tekrar; 161 gömülü A1 kelimesi; sınav motoru; yazım, telaffuz ve 24 konuluk dilbilgisi laboratuvarları; PDF okuyucu; Ders Kitaplığı; Kaynak Merkezi; LM Studio ile AI Öğretmen, Konuşma ve Yazma; ilerleme grafiği; `.gcapack` paketleri; token defteri; koyu/açık tema; tr/en/de arayüz. |
 | **v1.1.0** | Ayrı **Sözlük** sekmesi: gömülü sözlük, kaynak etiketleri, arama sıralaması, umlaut/ß toleransı, CSV/TSV içe-dışa aktarma, madde ekleme, kelime bankasına aktarma, arama geçmişi, seslendirme. Sözlükte bulunmayan kelimeler için **yapay zeka bağlantısı**: yapılandırılmış JSON madde üretimi, sonuçların önbelleklenmesi, alternatif OpenAI uyumlu uç nokta, anahtarın Kimlik Bilgisi Yöneticisi'nde saklanması, sözlük AI politikası. |
 | **v1.2.0** | **Yön seçici** (`Otomatik`, `DE → EN`, `EN → DE`, `DE → TR`, `TR → DE`); sabit yönde yalnız kaynak dil aranır ve seçim kaydedilir. **Türkçe sütunu** ve ayrıntı panelinde Türkçe satırı; `*2tr` yönlerinde Türkçe sütunu öne alınır. Eksik Türkçe karşılığın yapay zeka ile **kopya oluşturmadan** tamamlanması; ek anlamların mevcut karşılığa eklenmesi, kullanıcı satırlarının karşılığın yerine geçmesi. `tr` sütunlu CSV düzeni (eski düzen de okunur). Gömülü sözlük 1267 maddeye çıktı ve her maddeye Türkçe karşılık eklendi. |
+| **v1.2.1** | **Türkçe aramada ASCII ve büyük harf desteği**: "sinav" = "SINAV" = "sınav", "cok" = "çok", "ogrenci" = "öğrenci". Türkçe katlama, Almanca ö→oe katlamasından önce uygulanır; katlanarak bulunan eşleşme doğrudan eşleşmenin altına oranlanır, böylece "ask" yazan kullanıcı İngilizce karşılığı alır. Gösterilen yazım değişmez. **Kullanım kılavuzu**: depoya `docs/KULLANIM_KILAVUZU.md` (Türkçe) ve `docs/USER_GUIDE.md` (İngilizce) eklendi; kurulum, 18 ekran, sözlük ve yön seçimi, yapay zekâ kurulumu, veri yönetimi, sorun giderme ve SSS bölümlerini kapsar; PDF sürümü sürüm dosyalarına eklidir. |
 
 ---
 
