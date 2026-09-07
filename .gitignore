@@ -28,3 +28,6 @@ assets/app.png
 .env
 .env.*
 !*.env.example
+
+# Kullanim kilavuzunun ara HTML ciktisi (PDF ondan uretilir)
+docs/*.html
