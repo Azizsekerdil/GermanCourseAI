@@ -2,6 +2,14 @@ name: macOS Paketi
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Paketin yükleneceği release etiketi (örn. v1.3.0). Boş bırakılırsa yüklenmez."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
 
 jobs:
   macos:
@@ -16,8 +24,18 @@ jobs:
         run: |
           chmod +x build_macos.sh
           ./build_macos.sh
+      # Artifact deposu dolduğunda paket yine de release'e yüklenebilsin diye bu
+      # adımın başarısızlığı derlemeyi düşürmez.
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: GermanCourseAI-macOS
           path: dist/GermanCourseAI-macOS.zip
           if-no-files-found: error
+      - name: Paketi release'e yükle
+        if: inputs.release_tag != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          REPO: ${{ github.repository }}
+        run: gh release upload "$RELEASE_TAG" dist/GermanCourseAI-macOS.zip --clobber -R "$REPO"
