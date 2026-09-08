@@ -19,7 +19,7 @@
 
 ## 1. About this guide
 
-This document covers **German Course AI** version **1.2.1**. The application is a standalone desktop program for learning German: it runs on Windows and macOS, keeps your data on your own computer, and performs every feature except the AI ones without an internet connection.
+This document covers **German Course AI** version **1.3.0**. The application is a standalone desktop program for learning German: it runs on Windows and macOS, keeps your data on your own computer, and performs every feature except the AI ones without an internet connection.
 
 You do not have to read the guide end to end: see [2](#2-installation) and [3](#3-first-launch) for the first setup, [4](#4-screens) for what a screen does, and [5](#5-dictionary-in-detail) for the details of the dictionary.
 
@@ -36,6 +36,8 @@ Every button and field name is quoted as it appears with the interface language 
 3. Double-click **`GermanCourseAI.exe`** in that folder.
 
 There is no setup wizard, no administrator rights are needed and nothing is written to the registry. To remove the program, delete the folder; your data lives in a separate folder and is not deleted.
+
+The archive also contains `LICENSE` (MIT) and `THIRD_PARTY_NOTICES.md` (third-party component notices) next to the executable.
 
 ### macOS (zip archive)
 
@@ -563,6 +565,7 @@ Practical tips:
 | **v1.1.0** | A separate **Dictionary** tab: built-in dictionary, source labels, search ranking, umlaut/ß tolerance, CSV/TSV import and export, adding entries, transfer to the word bank, lookup history, speech. An **AI connection** for words the dictionary does not know: structured JSON entry generation, caching of the results, an alternative OpenAI-compatible endpoint, the key stored in the Credential Manager, and the dictionary AI policy. |
 | **v1.2.0** | The **direction selector** (`Auto`, `DE → EN`, `EN → DE`, `DE → TR`, `TR → DE`); a fixed direction searches only the source language and the choice is saved. The **Turkish column** and a Turkish line in the detail panel; in `*2tr` directions the Turkish column moves to the front. Completion of a missing Turkish gloss by the AI **without creating a duplicate**; extra senses appended to the existing gloss, user rows replacing it. The CSV layout with a `tr` column (the old layout is still read). The built-in dictionary grew to 1267 entries, each with a Turkish gloss. |
 | **v1.2.1** | **ASCII and upper-case support for Turkish searches**: "sinav" = "SINAV" = "sınav", "cok" = "çok", "ogrenci" = "öğrenci". Turkish folding is applied before the German ö→oe folding; a match found only through folding is ranked below the direct matches, so a user typing "ask" still gets the English gloss. The displayed spelling never changes. **User guide**: `docs/KULLANIM_KILAVUZU.md` (Turkish) and `docs/USER_GUIDE.md` (English) were added to the repository, covering installation, the 18 screens, the dictionary and its direction selector, the AI setup, data management, troubleshooting and the FAQ; the PDF version is attached to the release. |
+| **v1.3.0** | **MIT License**: the project is released under the MIT License; `LICENSE` and `THIRD_PARTY_NOTICES.md` were added to the repository and both files ship inside every distribution archive next to the executable. **Clean virtual-environment build**: the Windows package is now produced in a dedicated virtual environment that holds only the `requirements.txt` dependencies, so libraries the application never imports (pandas, SQLAlchemy, lxml, NumPy and the like) no longer enter the package, the file size drops noticeably, and the third-party notice travels with the package. |
 
 ---
 
