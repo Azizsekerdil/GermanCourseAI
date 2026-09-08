@@ -9,13 +9,21 @@ if [[ "$(uname -s)" != "Darwin" ]]; then
   exit 1
 fi
 
-PYTHON_BIN="${PYTHON_BIN:-python3}"
+rm -rf build/macos "dist/GermanCourseAI.app"
+mkdir -p build/macos
+
+# Paket, yalnizca requirements.txt'teki bagimliliklari icersin diye kendi sanal
+# ortamini kurar; boylece gelistiricinin yorumlayicisinda kurulu baska paketler
+# (numpy, Pillow, lxml ...) yanlislikla ikili dosyaya toplanmaz.
+# A dedicated venv keeps the .app free of whatever else is installed in the
+# developer's interpreter -- see THIRD_PARTY_NOTICES.md section 3.
+BOOTSTRAP_PYTHON="${PYTHON_BIN:-python3}"
+"$BOOTSTRAP_PYTHON" -m venv build/macos/venv
+PYTHON_BIN="$PROJECT_ROOT/build/macos/venv/bin/python"
+
 "$PYTHON_BIN" -m pip install --upgrade pip
 "$PYTHON_BIN" -m pip install -r requirements.txt
 "$PYTHON_BIN" -m pip install pyinstaller
-
-rm -rf build/macos "dist/GermanCourseAI.app"
-mkdir -p build/macos
 
 ICON_ARGS=()
 if command -v sips >/dev/null && command -v iconutil >/dev/null && [[ -f assets/app-final.png ]]; then
@@ -33,6 +41,11 @@ fi
 DATA_ARGS=()
 for dir in assets Resources grammar; do
   [[ -d "$dir" ]] && DATA_ARGS+=(--add-data "$PROJECT_ROOT/$dir:$dir")
+done
+# Bundled MIT/BSD/HPND components require their notices to travel with the binary.
+for file in LICENSE THIRD_PARTY_NOTICES.md; do
+  [[ -f "$file" ]] || { echo "HATA: $file bulunamadi; lisans bildirimi pakete konulamaz."; exit 1; }
+  DATA_ARGS+=(--add-data "$PROJECT_ROOT/$file:.")
 done
 
 "$PYTHON_BIN" -m PyInstaller --noconfirm --clean --onedir --windowed \

@@ -13,6 +13,7 @@
 - [9. Sorun giderme](#9-sorun-giderme)
 - [10. Sürüm notları özeti](#10-sürüm-notları-özeti)
 - [11. Sık sorulan sorular](#11-sık-sorulan-sorular)
+- [12. Lisans](#12-lisans)
 
 ---
 
@@ -596,3 +597,29 @@ Aynı biçim hem İngilizce hem Türkçe anlam olduğunda - ve Almanca bir madde
 
 **Güncelleme verilerimi siler mi?**
 Hayır. Program klasörünü yenisiyle değiştirin; veriler ayrı klasörde durur ve veritabanı şeması eklemeli güncellenir.
+
+---
+
+## 12. Lisans
+
+German Course AI **MIT Lisansı** ile yayımlanır. Tam metin, program kaynağındaki `LICENSE`
+dosyasındadır: programı kullanabilir, kopyalayabilir, değiştirebilir ve dağıtabilirsiniz; tek
+koşul telif ve lisans bildiriminin kopyalarla birlikte kalmasıdır. Program hiçbir garanti
+vermez.
+
+Programın içinde taşıdığı üçüncü taraf bileşenler - PDF Okuyucu'nun kullandığı pypdf, PyInstaller'ın
+donmuş uygulamaya eklediği Python, Tcl/Tk, SQLite ve OpenSSL gibi parçalar ve derleme araçları -
+kendi lisanslarıyla gelir. Hepsinin gerçek lisansı ve ne için kullanıldığı `THIRD_PARTY_NOTICES.md`
+dosyasında listelenir; bu dosya hem kaynak deposunda bulunur hem de indirdiğiniz arşivde
+`GermanCourseAI.exe` (macOS'ta `GermanCourseAI.app`) ile birlikte gelir.
+
+Dağıtılan ikili dosyalarda copyleft yükümlülüğü doğuran hiçbir kütüphane yoktur. Tek GPL lisanslı
+parça, Windows sürümünde NumPy'nin OpenBLAS kütüphanesine statik bağlanmış libgfortran çalışma
+zamanıdır; taşıdığı **GCC Runtime Library Exception 3.1** istisnası programın herhangi bir lisansla
+dağıtılmasına izin verir ve size hiçbir kaynak açma yükümlülüğü getirmez. LGPL veya AGPL lisanslı
+hiçbir kütüphane yoktur.
+
+**Kaynak Merkezi**'nde listelenen dış kaynaklar (Wikibooks, Tatoeba, LibriVox, Project Gutenberg)
+programa kopyalanmaz; her biri kendi lisansını korur ve bu lisanslar sayfada görünür durumdadır.
+Sizin `Resources/` klasörüne koyduğunuz ders dosyaları yerelinizde kalır ve hiçbir zaman
+dağıtılmaz.

@@ -106,3 +106,19 @@ docs/presentation/      Düzenlenebilir PPTX, PDF ve ekran görüntüleri
 ## Açık kaynak kataloğu
 
 Uygulama, içerikleri pakete kopyalamaz; yalnız lisans ve atıf bilgili bağlantılar sunar. Katalog Wikibooks (CC BY-SA), Tatoeba (CC BY 2.0 FR / seçili CC0), LibriVox ve Project Gutenberg kamu malı koleksiyonlarını içerir. Kamu malı durumu ülkeye göre değişebileceğinden her kayıt bu uyarıyı görünür tutar.
+
+## Lisans
+
+German Course AI **MIT Lisansı** ile yayımlanır; tam metin [LICENSE](LICENSE) dosyasındadır.
+
+Kaynak kodun tek üçüncü taraf çalışma zamanı bağımlılığı pypdf'tir (BSD-3-Clause). Donmuş
+uygulamaya PyInstaller tarafından eklenen Python, Tcl/Tk, SQLite ve OpenSSL gibi bileşenlerin,
+derleme araçlarının ve Kaynak Merkezi'nde yalnızca bağlantı olarak sunulan açık lisanslı dış
+kaynakların gerçek lisansları [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) dosyasında
+listelenir. `LICENSE` ve `THIRD_PARTY_NOTICES.md` her dağıtım arşivinde çalıştırılabilir dosyanın
+yanında yer alır.
+
+Dağıtılan ikili dosyalarda copyleft yükümlülüğü doğuran hiçbir kütüphane yoktur. Tek GPL lisanslı
+parça, Windows yapısında NumPy'nin OpenBLAS DLL'ine statik bağlanan libgfortran çalışma zamanıdır;
+**GCC Runtime Library Exception 3.1** taşıdığı için uygulamanın herhangi bir lisansla dağıtılmasına
+izin verir ve kaynak açma yükümlülüğü doğurmaz. LGPL veya AGPL lisanslı hiçbir kütüphane bulunmaz.

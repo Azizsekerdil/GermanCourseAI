@@ -1,6 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { Presentation } from "file:///C:/Users/azizs/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool/dist/artifact_tool.mjs";
+// The deck renderer is an internal tool; point ARTIFACT_TOOL at its module (file:// URL or package name).
+const { Presentation } = await import(process.env.ARTIFACT_TOOL ?? "@oai/artifact-tool");
+
+// Repo kokleri: betik <root>/tmp icinde durur; GEFR_ROOT ile disaridan da verilebilir.
+const ROOT = process.env.GEFR_ROOT ?? path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1")), "..");
 
 const W = 1280;
 const H = 720;
@@ -199,9 +203,9 @@ async function buildDeck(cfg) {
 const configs = [
   {
     name: "German Course AI", shortName: "German Course AI", pkg: "gca",
-    output: "D:/GE_FR/GermanCourseAI/docs/presentation/German-Course-AI-Trilingual.pptx",
-    icon: "D:/GE_FR/GermanCourseAI/assets/app-final.png",
-    screenshot: "D:/GE_FR/GermanCourseAI/docs/presentation/assets/german-course-ai-screenshot.jpg",
+    output: path.join(ROOT, "GermanCourseAI/docs/presentation/German-Course-AI-Trilingual.pptx"),
+    icon: path.join(ROOT, "GermanCourseAI/assets/app-final.png"),
+    screenshot: path.join(ROOT, "GermanCourseAI/docs/presentation/assets/german-course-ai-screenshot.jpg"),
     accent: "#E8AE2E", accentDark: "#9A6500", pale: "#FFF3CF",
     kicker: "OFFLINE-FIRST WINDOWS LANGUAGE LEARNING",
     titleLine: "Türkçe · English · Deutsch",
@@ -248,9 +252,9 @@ const configs = [
   },
   {
     name: "French Course AI", shortName: "French Course AI", pkg: "fca",
-    output: "D:/GE_FR/FrenchCourseAI/docs/presentation/French-Course-AI-Trilingual.pptx",
-    icon: "D:/GE_FR/FrenchCourseAI/assets/app-final.png",
-    screenshot: "D:/GE_FR/FrenchCourseAI/docs/presentation/assets/french-course-ai-screenshot.jpg",
+    output: path.join(ROOT, "FrenchCourseAI/docs/presentation/French-Course-AI-Trilingual.pptx"),
+    icon: path.join(ROOT, "FrenchCourseAI/assets/app-final.png"),
+    screenshot: path.join(ROOT, "FrenchCourseAI/docs/presentation/assets/french-course-ai-screenshot.jpg"),
     accent: "#FF6668", accentDark: "#B8323A", pale: "#FFE5E5",
     kicker: "OFFLINE-FIRST WINDOWS LANGUAGE LEARNING",
     titleLine: "Türkçe · English · Français",

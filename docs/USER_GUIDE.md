@@ -13,6 +13,7 @@
 - [9. Troubleshooting](#9-troubleshooting)
 - [10. Release notes summary](#10-release-notes-summary)
 - [11. Frequently asked questions](#11-frequently-asked-questions)
+- [12. License](#12-license)
 
 ---
 
@@ -596,3 +597,30 @@ When the same form is both an English and a Turkish sense - and is not itself a 
 
 **Will an update delete my data?**
 No. Replace the program folder with the new one; the data lives in a separate folder and the database schema is updated additively.
+
+---
+
+## 12. License
+
+German Course AI is released under the **MIT License**. The full text lives in the `LICENSE` file
+of the source repository: you may use, copy, modify and redistribute the program, the single
+condition being that the copyright and licence notice travels with the copies. The program comes
+with no warranty.
+
+The third-party components the program carries inside itself - pypdf behind the PDF Reader, and
+the pieces PyInstaller embeds in the frozen application such as Python, Tcl/Tk, SQLite and
+OpenSSL, plus the build tools - keep their own licences. Every one of them, with its real licence
+and what it is used for, is listed in `THIRD_PARTY_NOTICES.md`, which is published in the source
+repository and also ships in the archive you downloaded, next to `GermanCourseAI.exe` (inside
+`GermanCourseAI.app` on macOS).
+
+No copyleft library imposes copyleft obligations on the distributed binaries. The only GPL-licensed
+code present is the libgfortran runtime statically linked into NumPy's OpenBLAS library in the
+Windows build; the **GCC Runtime Library Exception 3.1** it carries permits the program to be
+redistributed under any licence and places no source-disclosure requirement on you. No LGPL or
+AGPL library is bundled.
+
+The external sources listed on the **Resource Center** page (Wikibooks, Tatoeba, LibriVox, Project
+Gutenberg) are not copied into the program; each keeps its own licence, and that licence is shown
+on the card. Course files you drop into `Resources/` stay on your computer and are never
+redistributed.

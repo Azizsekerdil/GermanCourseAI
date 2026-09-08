@@ -8,4 +8,11 @@ German Course AI — presentation sources
 - LibriVox public-domain catalog: https://librivox.org/pages/about-librivox/
 - Project Gutenberg permissions: https://www.gutenberg.org/policy/permission.html
 - Deck generator: docs/presentation/generate_presentations.mjs (node; ONLY_DECK=gca builds this deck only)
+  The renderer it imports is an internal, non-public tool and is NOT vendored in this repository.
+  Point ARTIFACT_TOOL at its module before running, e.g.
+      ARTIFACT_TOOL="file:///abs/path/to/@oai/artifact-tool/dist/artifact_tool.mjs" node docs/presentation/generate_presentations.mjs
+  Optionally set GEFR_ROOT to the repository root. Without ARTIFACT_TOOL the script cannot run;
+  the committed .pptx/.pdf are the shipped artifacts.
+- Guide generator: docs/build_guides.py (Markdown -> docs/*.html -> docs/*.pdf, headless Chrome print-to-PDF;
+  needs `python -m pip install -r requirements-dev.txt`, CHROME_BIN overrides the browser path)
 - GitHub release (private repo): https://github.com/Azizsekerdil/GermanCourseAI/releases/tag/v1.2.1 (Windows zip + macOS zip; macOS build is Apple Silicon, not notarized)

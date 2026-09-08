@@ -10,6 +10,10 @@ a = Analysis(
         (str(root / "assets"), "assets"),
         (str(root / "Resources"), "Resources"),
         (str(root / "grammar"), "grammar"),
+        # Attribution obligation of the bundled MIT/BSD/HPND components:
+        # the notices must travel with the binary, not only with the repository.
+        (str(root / "LICENSE"), "."),
+        (str(root / "THIRD_PARTY_NOTICES.md"), "."),
     ],
     hiddenimports=["pypdf", "gca.secrets", "gca.dictionary", "gca.dict_data", "gca.tabs.dictionary"],
     hookspath=[], hooksconfig={}, runtime_hooks=[], excludes=[], noarchive=False,

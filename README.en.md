@@ -98,3 +98,18 @@ grammar/                offline grammar notes
 Resources/              learner-owned course files
 docs/presentation/      editable PPTX, PDF and screenshots
 ```
+
+## License
+
+German Course AI is released under the **MIT License**; the full text is in [LICENSE](LICENSE).
+
+The source tree's only third-party runtime dependency is pypdf (BSD-3-Clause). The real licences
+of everything PyInstaller embeds in the frozen application (Python, Tcl/Tk, SQLite, OpenSSL and
+the rest), of the build tools, and of the openly licensed material the Resource Center merely
+links to are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Both `LICENSE` and
+`THIRD_PARTY_NOTICES.md` ship inside every release archive next to the executable.
+
+No copyleft library imposes copyleft obligations on the distributed binaries. The only GPL-licensed
+code present is the libgfortran runtime statically linked inside NumPy's OpenBLAS DLL in the
+Windows build; it carries the **GCC Runtime Library Exception 3.1**, which permits redistribution
+under any licence and creates no source-disclosure requirement. No LGPL or AGPL library is bundled.
