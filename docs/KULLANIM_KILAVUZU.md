@@ -4,7 +4,7 @@
 
 - [1. Bu kılavuz hakkında](#1-bu-kılavuz-hakkında)
 - [2. Kurulum](#2-kurulum)
-- [3. İlk açılış](#3-ilk-açılış)
+- [3. Programın ilk açılışı](#3-programın-ilk-açılışı)
 - [4. Ekranlar](#4-ekranlar)
 - [5. Sözlük (ayrıntılı)](#5-sözlük-ayrıntılı)
 - [6. Yapay zeka](#6-yapay-zeka)
@@ -21,7 +21,7 @@
 
 Bu belge **German Course AI** sürüm **1.3.0** için yazılmıştır. Uygulama, Almanca öğrenmek için tasarlanmış bağımsız bir masaüstü programıdır: Windows ve macOS üzerinde çalışır, verilerinizi kendi bilgisayarınızda tutar ve yapay zeka dışındaki her özelliği internet olmadan yerine getirir.
 
-Kılavuzu baştan sona okumanız gerekmez: ilk kurulum için [2](#2-kurulum) ve [3](#3-ilk-açılış), bir ekranın ne yaptığı için [4](#4-ekranlar), sözlüğün ayrıntıları için [5](#5-sözlük-ayrıntılı) bölümüne bakın.
+Kılavuzu baştan sona okumanız gerekmez: ilk kurulum için [2](#2-kurulum) ve [3](#3-programın-ilk-açılışı), bir ekranın ne yaptığı için [4](#4-ekranlar), sözlüğün ayrıntıları için [5](#5-sözlük-ayrıntılı) bölümüne bakın.
 
 Bütün düğme ve alan adları, arayüz dili **Türkçe** seçiliyken göründüğü gibi yazılmıştır; İngilizce karşılıkları gerektiğinde parantez içinde verilmiştir. Arayüz dili olarak **Türkçe**, **English** ve **Deutsch** seçilebilir.
 
@@ -77,7 +77,7 @@ $env:GCA_HOME = "E:\GermanCourseAI-Veri"
 
 ---
 
-## 3. İlk açılış
+## 3. Programın ilk açılışı
 
 Pencere 1360 × 860 boyutunda açılır (en küçük 1080 × 700): solda gruplanmış gezinme çubuğu, üstte araç şeridi, altta durum satırı.
 

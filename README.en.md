@@ -1,6 +1,13 @@
 # German Course AI
 
-German Course AI is an independent Windows desktop learning app built around local-first student data. Its Turkish, English and German interfaces expose the same feature set and German-specific content.
+[![release](https://img.shields.io/github/v/release/Azizsekerdil/GermanCourseAI?display_name=tag&sort=semver&label=release&color=2ea44f)](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest)
+[![license MIT](https://img.shields.io/github/license/Azizsekerdil/GermanCourseAI?label=license&color=blue)](LICENSE)
+[![platform Windows and macOS](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-0078D4)](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB)](https://www.python.org/downloads/)
+
+[Türkçe](README.md) | **English**
+
+German Course AI is an independent desktop learning app for Windows and macOS, built around local-first student data. Its Turkish, English and German interfaces expose the same feature set and German-specific content.
 
 > Core learning features and student data are local. Opening resource links and using optional remote services requires the internet, so the app does not make a misleading “100% offline” claim.
 
@@ -25,6 +32,22 @@ User guide: [docs/USER_GUIDE.md](docs/USER_GUIDE.md) — installation, the 18 sc
 - Weekly progress report, light/dark themes and learner profiles
 - Unicode CSV and `.gcapack` import/export
 
+## Download
+
+The ready-made packages need no Python: unpack the archive and start the app.
+
+| Download | What it is |
+| --- | --- |
+| [GermanCourseAI-Windows.zip](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest/download/GermanCourseAI-Windows.zip) | Windows package; unpack it and double-click `GermanCourseAI.exe`. |
+| [GermanCourseAI-macOS.zip](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest/download/GermanCourseAI-macOS.zip) | Apple Silicon Mac package; move `GermanCourseAI.app` to your **Applications** folder. |
+| [GermanCourseAI-Kullanim-Kilavuzu.pdf](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest/download/GermanCourseAI-Kullanim-Kilavuzu.pdf) | The user guide as a PDF. |
+
+Every package, the release notes and the older versions are on the [releases page](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest).
+
+The macOS package is **not notarized** by Apple: on the first launch, instead of double-clicking, **right-click the icon → Open** and confirm with **Open** in the warning. This confirmation is needed only once.
+
+If you would rather run from source, see below.
+
 ## Install and run from source
 
 Requires Python 3.11 or newer.
@@ -38,14 +61,24 @@ python .\German_Course_AI.pyw
 
 User data is stored under `%APPDATA%\GermanCourseAI`. Set `GCA_HOME` to an isolated folder for testing or portable evaluation.
 
-## Build the Windows EXE
+## Build the Windows and macOS packages
+
+The Windows package is built on Windows:
 
 ```powershell
 python -m pip install -r requirements-dev.txt
 .\build.bat
 ```
 
-Output: `dist\GermanCourseAI.exe`. Build output and user data are excluded from Git.
+Output: `dist\GermanCourseAI.exe`.
+
+The macOS package is built on a Mac:
+
+```bash
+./build_macos.sh
+```
+
+Output: `dist/GermanCourseAI.app` and `dist/GermanCourseAI-macOS.zip`. Build output and user data are excluded from Git.
 
 ## Local AI
 

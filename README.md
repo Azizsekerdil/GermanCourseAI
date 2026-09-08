@@ -1,6 +1,13 @@
 # German Course AI
 
-German Course AI, Almanca öğrenimi için yerel veriyi önceleyen bağımsız bir Windows masaüstü uygulamasıdır. Türkçe, English ve Deutsch arayüzleri; hedef dile özgü kelime, yazım, ses ve dilbilgisi içeriğiyle aynı özellik kapsamını sunar.
+[![sürüm](https://img.shields.io/github/v/release/Azizsekerdil/GermanCourseAI?display_name=tag&sort=semver&label=s%C3%BCr%C3%BCm&color=2ea44f)](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest)
+[![lisans MIT](https://img.shields.io/github/license/Azizsekerdil/GermanCourseAI?label=lisans&color=blue)](LICENSE)
+[![platform Windows ve macOS](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-0078D4)](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB)](https://www.python.org/downloads/)
+
+**Türkçe** | [English](README.en.md)
+
+German Course AI, Almanca öğrenimi için yerel veriyi önceleyen, Windows ve macOS üzerinde çalışan bağımsız bir masaüstü uygulamasıdır. Türkçe, English ve Deutsch arayüzleri; hedef dile özgü kelime, yazım, ses ve dilbilgisi içeriğiyle aynı özellik kapsamını sunar.
 
 > Temel çalışma özellikleri ve öğrenci verileri yereldir. Kaynak bağlantılarını açmak ve isteğe bağlı uzak servisleri kullanmak internet gerektirir; uygulama bu nedenle yanıltıcı bir “%100 çevrimdışı” iddiasında bulunmaz.
 
@@ -25,6 +32,22 @@ Kullanım kılavuzu: [docs/KULLANIM_KILAVUZU.md](docs/KULLANIM_KILAVUZU.md) — 
 - Haftalık ilerleme raporu, açık/koyu tema ve öğrenci profilleri
 - Unicode CSV ve `.gcapack` paket içe/dışa aktarımı
 
+## İndirme
+
+Hazır paketi indirmek için Python kurmanıza gerek yoktur: arşivi açın ve uygulamayı başlatın.
+
+| İndirme | Açıklama |
+| --- | --- |
+| [GermanCourseAI-Windows.zip](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest/download/GermanCourseAI-Windows.zip) | Windows paketi; arşivi açıp `GermanCourseAI.exe` dosyasına çift tıklayın. |
+| [GermanCourseAI-macOS.zip](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest/download/GermanCourseAI-macOS.zip) | Apple Silicon Mac paketi; `GermanCourseAI.app` dosyasını **Uygulamalar** klasörüne taşıyın. |
+| [GermanCourseAI-Kullanim-Kilavuzu.pdf](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest/download/GermanCourseAI-Kullanim-Kilavuzu.pdf) | Kullanım kılavuzunun PDF sürümü. |
+
+Bütün paketler, sürüm notları ve eski sürümler [Sürümler sayfasındadır](https://github.com/Azizsekerdil/GermanCourseAI/releases/latest).
+
+macOS paketi Apple tarafından **notarize edilmemiştir**: ilk açılışta çift tıklamak yerine simgeye **sağ tıklayın → Aç** deyin ve uyarıda yine **Aç**'a basın. Bu onay yalnızca bir kez gerekir.
+
+Kaynaktan çalıştırmak isterseniz aşağıya bakın.
+
 ## Kurulum ve kaynaktan çalıştırma
 
 Gereksinim: Python 3.11 veya üzeri.
@@ -38,14 +61,24 @@ python .\German_Course_AI.pyw
 
 Öğrenci verileri varsayılan olarak `%APPDATA%\GermanCourseAI` altında tutulur. Test veya taşınabilir deneme için `GCA_HOME` ortam değişkeniyle farklı bir klasör seçilebilir.
 
-## Windows EXE üretimi
+## Windows ve macOS paketi üretimi
+
+Windows paketi Windows üzerinde üretilir:
 
 ```powershell
 python -m pip install -r requirements-dev.txt
 .\build.bat
 ```
 
-Çıktı: `dist\GermanCourseAI.exe`. `build`, `dist` ve kullanıcı verileri Git deposuna alınmaz.
+Çıktı: `dist\GermanCourseAI.exe`.
+
+macOS paketi bir Mac üzerinde üretilir:
+
+```bash
+./build_macos.sh
+```
+
+Çıktı: `dist/GermanCourseAI.app` ve `dist/GermanCourseAI-macOS.zip`. `build`, `dist` ve kullanıcı verileri Git deposuna alınmaz.
 
 ## Yerel AI kurulumu
 
