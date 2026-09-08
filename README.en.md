@@ -109,7 +109,9 @@ the rest), of the build tools, and of the openly licensed material the Resource 
 links to are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Both `LICENSE` and
 `THIRD_PARTY_NOTICES.md` ship inside every release archive next to the executable.
 
-No copyleft library imposes copyleft obligations on the distributed binaries. The only GPL-licensed
-code present is the libgfortran runtime statically linked inside NumPy's OpenBLAS DLL in the
-Windows build; it carries the **GCC Runtime Library Exception 3.1**, which permits redistribution
-under any licence and creates no source-disclosure requirement. No LGPL or AGPL library is bundled.
+From 1.3.0 on the Windows package, like the macOS one, is built in a dedicated virtual environment
+that holds only the `requirements.txt` dependencies, so pypdf is the single non-standard-library
+Python package inside the binaries. Packages the application never imports but that used to be
+collected anyway (NumPy, Pillow, cryptography, lxml, PyYAML and the rest) are gone, and the
+executable shrank from 44.5 MB to about 16.9 MB. **No GPL, LGPL or AGPL library code is present in
+the distributed binaries.**

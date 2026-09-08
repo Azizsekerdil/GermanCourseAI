@@ -60,6 +60,17 @@ done
 APP_PATH="dist/GermanCourseAI.app"
 [[ -d "$APP_PATH" ]] || { echo "HATA: $APP_PATH oluşturulamadı."; exit 1; }
 
-ditto -c -k --keepParent "$APP_PATH" "dist/GermanCourseAI-macOS.zip"
+# Dagitim arsivi: .app'in yaninda lisans bildirimleri de bulunmalidir; Windows
+# arsivi ile ayni icerik. The notices must travel with the binary, so the zip
+# carries LICENSE and THIRD_PARTY_NOTICES.md next to the .app as well (they are
+# also embedded inside the bundle's Resources by the --add-data flags above).
+ZIP_STAGE="build/macos/zip"
+rm -rf "$ZIP_STAGE"
+mkdir -p "$ZIP_STAGE"
+ditto "$APP_PATH" "$ZIP_STAGE/GermanCourseAI.app"
+cp LICENSE THIRD_PARTY_NOTICES.md "$ZIP_STAGE/"
+rm -f "dist/GermanCourseAI-macOS.zip"
+ditto -c -k --sequesterRsrc "$ZIP_STAGE" "dist/GermanCourseAI-macOS.zip"
+rm -rf "$ZIP_STAGE"
 echo "Tamamlandı: $APP_PATH"
-echo "Dağıtım ZIP'i: dist/GermanCourseAI-macOS.zip"
+echo "Dağıtım ZIP'i: dist/GermanCourseAI-macOS.zip (GermanCourseAI.app + LICENSE + THIRD_PARTY_NOTICES.md)"

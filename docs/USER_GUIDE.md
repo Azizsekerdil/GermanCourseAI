@@ -617,11 +617,12 @@ and what it is used for, is listed in `THIRD_PARTY_NOTICES.md`, which is publish
 repository and also ships in the archive you downloaded, next to `GermanCourseAI.exe` (inside
 `GermanCourseAI.app` on macOS).
 
-No copyleft library imposes copyleft obligations on the distributed binaries. The only GPL-licensed
-code present is the libgfortran runtime statically linked into NumPy's OpenBLAS library in the
-Windows build; the **GCC Runtime Library Exception 3.1** it carries permits the program to be
-redistributed under any licence and places no source-disclosure requirement on you. No LGPL or
-AGPL library is bundled.
+From 1.3.0 on, both the Windows and the macOS package are built in a dedicated virtual environment
+that carries only the dependencies in `requirements.txt`, so pypdf is the only non-standard-library
+Python package inside them. **No GPL, LGPL or AGPL library code is present in the distributed
+binaries.** (Up to 1.2.1 the Windows build also carried the libgfortran runtime statically linked
+into NumPy's OpenBLAS library; the **GCC Runtime Library Exception 3.1** it carries meant that it,
+too, placed no source-disclosure requirement on you.)
 
 The external sources listed on the **Resource Center** page (Wikibooks, Tatoeba, LibriVox, Project
 Gutenberg) are not copied into the program; each keeps its own licence, and that licence is shown

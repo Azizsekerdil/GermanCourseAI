@@ -616,11 +616,12 @@ kendi lisanslarıyla gelir. Hepsinin gerçek lisansı ve ne için kullanıldığ
 dosyasında listelenir; bu dosya hem kaynak deposunda bulunur hem de indirdiğiniz arşivde
 `GermanCourseAI.exe` (macOS'ta `GermanCourseAI.app`) ile birlikte gelir.
 
-Dağıtılan ikili dosyalarda copyleft yükümlülüğü doğuran hiçbir kütüphane yoktur. Tek GPL lisanslı
-parça, Windows sürümünde NumPy'nin OpenBLAS kütüphanesine statik bağlanmış libgfortran çalışma
-zamanıdır; taşıdığı **GCC Runtime Library Exception 3.1** istisnası programın herhangi bir lisansla
-dağıtılmasına izin verir ve size hiçbir kaynak açma yükümlülüğü getirmez. LGPL veya AGPL lisanslı
-hiçbir kütüphane yoktur.
+Sürüm 1.3.0'dan itibaren hem Windows hem macOS paketi, yalnızca `requirements.txt` içindeki
+bağımlılıkları taşıyan ayrı bir sanal ortamda derlenir; bu yüzden paketlerde standart kütüphane
+dışındaki tek Python paketi pypdf'tir. Dağıtılan ikili dosyalarda **GPL, LGPL veya AGPL lisanslı
+hiçbir kütüphane kodu bulunmaz**. (1.2.1 ve öncesindeki Windows sürümü, NumPy'nin OpenBLAS
+kütüphanesine statik bağlanmış libgfortran çalışma zamanını da taşıyordu; taşıdığı **GCC Runtime
+Library Exception 3.1** istisnası nedeniyle o da hiçbir kaynak açma yükümlülüğü doğurmuyordu.)
 
 **Kaynak Merkezi**'nde listelenen dış kaynaklar (Wikibooks, Tatoeba, LibriVox, Project Gutenberg)
 programa kopyalanmaz; her biri kendi lisansını korur ve bu lisanslar sayfada görünür durumdadır.

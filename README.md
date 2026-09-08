@@ -118,7 +118,9 @@ kaynakların gerçek lisansları [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md
 listelenir. `LICENSE` ve `THIRD_PARTY_NOTICES.md` her dağıtım arşivinde çalıştırılabilir dosyanın
 yanında yer alır.
 
-Dağıtılan ikili dosyalarda copyleft yükümlülüğü doğuran hiçbir kütüphane yoktur. Tek GPL lisanslı
-parça, Windows yapısında NumPy'nin OpenBLAS DLL'ine statik bağlanan libgfortran çalışma zamanıdır;
-**GCC Runtime Library Exception 3.1** taşıdığı için uygulamanın herhangi bir lisansla dağıtılmasına
-izin verir ve kaynak açma yükümlülüğü doğurmaz. LGPL veya AGPL lisanslı hiçbir kütüphane bulunmaz.
+Sürüm 1.3.0'dan itibaren Windows paketi de macOS paketi gibi yalnızca `requirements.txt`
+bağımlılıklarını içeren ayrı bir sanal ortamda derlenir; bu yüzden ikili dosyalarda standart
+kütüphane dışındaki tek Python paketi pypdf'tir. Uygulamanın hiç kullanmadığı halde eskiden
+toplanan paketler (NumPy, Pillow, cryptography, lxml, PyYAML ...) artık pakete girmez; exe boyutu
+44,5 MB'tan yaklaşık 16,9 MB'a düşmüştür. Dağıtılan ikili dosyalarda **GPL, LGPL veya AGPL
+lisanslı hiçbir kütüphane kodu bulunmaz**.
