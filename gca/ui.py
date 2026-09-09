@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import tkinter as tk
 from tkinter import ttk
 
@@ -34,6 +35,16 @@ def apply_theme(root: tk.Misc, style: ttk.Style, theme_name: str):
     style.configure("TNotebook", background=p["bg"], borderwidth=0)
     style.configure("TNotebook.Tab", background=p["panel"], foreground=p["muted"], padding=(12, 7))
     style.map("TNotebook.Tab", background=[("selected", p["card"])], foreground=[("selected", p["fg"])])
+    # Aqua only: it ignores the colours set on tk buttons and readonly comboboxes.
+    if sys.platform == "darwin":
+        style.configure("Nav.TButton", background=p["deep"], foreground=p["fg"],
+                        anchor="w", padding=(14, 5), borderwidth=0, font=(FONT, 9))
+        style.map("Nav.TButton", background=[("active", p["hover"])], foreground=[("active", p["fg"])])
+        style.configure("Selected.Nav.TButton", background=p["card"], foreground=p["accent"])
+        style.map("Selected.Nav.TButton", background=[("active", p["card"])], foreground=[("active", p["accent"])])
+        style.map("TCombobox", fieldbackground=[("readonly", p["card"])],
+                  foreground=[("readonly", p["fg"])], selectbackground=[("readonly", p["card"])],
+                  selectforeground=[("readonly", p["fg"])])
     return p
 
 

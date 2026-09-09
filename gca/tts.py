@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 import threading
 
 from . import config as C
+
+MACOS_VOICE = "Anna"                 # voice used by the macOS `say` command
 
 
 class Speaker:
@@ -16,6 +19,7 @@ class Speaker:
         threading.Thread(target=self._run, args=(text,), daemon=True).start()
 
     def _run(self, text: str) -> None:
+        if sys.platform == "darwin": return self._run_macos(text)
         escaped = text.replace("'", "''")
         script = ("Add-Type -AssemblyName System.Speech; "
                   "$s=New-Object System.Speech.Synthesis.SpeechSynthesizer; "
@@ -29,5 +33,15 @@ class Speaker:
         except OSError:
             pass
 
+    def _run_macos(self, text: str) -> None:
+        # A language voice is an optional download on macOS, but `say` substitutes the system
+        # voice on its own, so only a missing or unusable `say` binary is guarded here.
+        try:
+            subprocess.run(["/usr/bin/say", "-v", MACOS_VOICE, "-r", str(self.rate)],
+                           input=text, text=True, check=False, capture_output=True)
+        except OSError:
+            pass
+
     def info(self) -> str:
+        if sys.platform == "darwin": return f"macOS say ({MACOS_VOICE})"
         return "Windows System.Speech (de-DE when installed)"

@@ -83,9 +83,12 @@ class App(tk.Tk):
         for key, _cls, icon, group in TAB_SPECS:
             if group != current_group:
                 current_group = group; tk.Label(self.nav, text=self.t(group), bg=self.palette["deep"], fg=self.palette["muted"], font=(FONT, 8, "bold"), anchor="w").pack(fill="x", padx=18, pady=(10, 3))
-            button = tk.Button(self.nav, text=f"{icon:>2}   {self.t(key)}", anchor="w", relief="flat", bd=0,
-                               bg=self.palette["deep"], fg=self.palette["fg"], activebackground=self.palette["hover"], activeforeground=self.palette["fg"],
-                               font=(FONT, 9), padx=14, pady=5, command=lambda k=key: self.select(k))
+            if sys.platform == "darwin":                    # Aqua ignores tk.Button colours; ttk keeps the sidebar readable
+                button = ttk.Button(self.nav, text=f"{icon:>2}   {self.t(key)}", style="Nav.TButton", command=lambda k=key: self.select(k))
+            else:
+                button = tk.Button(self.nav, text=f"{icon:>2}   {self.t(key)}", anchor="w", relief="flat", bd=0,
+                                   bg=self.palette["deep"], fg=self.palette["fg"], activebackground=self.palette["hover"], activeforeground=self.palette["fg"],
+                                   font=(FONT, 9), padx=14, pady=5, command=lambda k=key: self.select(k))
             button.pack(fill="x", padx=8); self.nav_buttons[key] = button
 
     def rebuild_pages(self):
@@ -94,7 +97,9 @@ class App(tk.Tk):
 
     def select(self, key):
         for page in self._tabs.values(): page.pack_forget()
-        for k, button in self.nav_buttons.items(): button.configure(bg=self.palette["card"] if k == key else self.palette["deep"], fg=self.palette["accent"] if k == key else self.palette["fg"])
+        for k, button in self.nav_buttons.items():
+            if sys.platform == "darwin": button.configure(style="Selected.Nav.TButton" if k == key else "Nav.TButton")
+            else: button.configure(bg=self.palette["card"] if k == key else self.palette["deep"], fg=self.palette["accent"] if k == key else self.palette["fg"])
         self._current_key = key; self._tabs[key].pack(fill="both", expand=True); self.page_title.configure(text=self.t(key)); self.status.set(self.t("g.ready"))
         on_show = getattr(self._tabs[key], "on_show", None)
         if on_show: on_show()

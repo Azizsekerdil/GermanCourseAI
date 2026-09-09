@@ -66,7 +66,8 @@ Kendi çalıştırılabilir dosyanızı üretmek için `python -m pip install -r
 | Sistem | Varsayılan veri klasörü |
 | --- | --- |
 | Windows | `%APPDATA%\GermanCourseAI` |
-| macOS / Linux | `~/.germancourseai` |
+| macOS | `~/Library/Application Support/GermanCourseAI` |
+| Linux | `~/.germancourseai` |
 
 Altında `data\` (SQLite veritabanı `GermanCourseAI.db`), `settings\`, `exports\` ve `downloads\` klasörleri bulunur. Taşınabilir kullanım için **`GCA_HOME`** ortam değişkenini tanımlayın; program bütün verisini o klasöre yazar:
 
@@ -553,7 +554,7 @@ Pratik ipuçları:
 ### Veriler nerede
 
 **Belirti.** Yedek almak ya da veriyi başka bilgisayara taşımak istiyorsunuz.
-**Neden ve çözüm.** Tam yol **Çevrimdışı Kılavuz** sayfasının altında yazılıdır: Windows'ta `%APPDATA%\GermanCourseAI`, diğer sistemlerde `~/.germancourseai`. `GCA_HOME` tanımlıysa program o klasörü kullanır.
+**Neden ve çözüm.** Tam yol **Çevrimdışı Kılavuz** sayfasının altında yazılıdır: Windows'ta `%APPDATA%\GermanCourseAI`, macOS'ta `~/Library/Application Support/GermanCourseAI`, diğer sistemlerde `~/.germancourseai`. `GCA_HOME` tanımlıysa program o klasörü kullanır.
 
 ---
 

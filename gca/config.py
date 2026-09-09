@@ -29,6 +29,12 @@ def _home() -> Path:
     override = os.environ.get(HOME_ENV)
     if override:
         return Path(override)
+    if sys.platform == "darwin":
+        # Application Support is the macOS convention; earlier builds wrote to the dot directory,
+        # so keep using ~/.germancourseai while it exists and the new location does not.
+        mac_home = Path.home() / "Library" / "Application Support" / APP_SLUG
+        legacy = Path.home() / f".{APP_SLUG.lower()}"
+        return legacy if legacy.exists() and not mac_home.exists() else mac_home
     if sys.platform.startswith("win"):
         return Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming")) / APP_SLUG
     return Path.home() / f".{APP_SLUG.lower()}"

@@ -66,7 +66,8 @@ Learner data is not stored in the program folder but in a separate user folder.
 | System | Default data folder |
 | --- | --- |
 | Windows | `%APPDATA%\GermanCourseAI` |
-| macOS / Linux | `~/.germancourseai` |
+| macOS | `~/Library/Application Support/GermanCourseAI` |
+| Linux | `~/.germancourseai` |
 
 It contains `data\` (the SQLite database `GermanCourseAI.db`), `settings\`, `exports\` and `downloads\`. For portable use, define the **`GCA_HOME`** environment variable; the program writes all of its data into that folder:
 
@@ -553,7 +554,7 @@ Practical tips:
 ### Where is my data
 
 **Symptom.** You want to back the data up or move it to another computer.
-**Cause and fix.** The full path is printed at the bottom of the **Offline Guide** page: `%APPDATA%\GermanCourseAI` on Windows, `~/.germancourseai` elsewhere. If `GCA_HOME` is set, the program uses that folder.
+**Cause and fix.** The full path is printed at the bottom of the **Offline Guide** page: `%APPDATA%\GermanCourseAI` on Windows, `~/Library/Application Support/GermanCourseAI` on macOS, `~/.germancourseai` elsewhere. If `GCA_HOME` is set, the program uses that folder.
 
 ---
 
