@@ -1,0 +1,50 @@
+name: Windows Paketi
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Paketin yükleneceği release etiketi (örn. v1.3.1). Boş bırakılırsa yüklenmez."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      # Pakete yalnızca requirements.txt'teki bağımlılıklar girsin diye derleme
+      # temiz bir sanal ortamdan yapılır; build.bat hazır yorumlayıcıyı
+      # PYTHON_BIN değişkeninden alır ve kendi ortamını kurmaz.
+      - name: Temiz derleme ortamı
+        run: |
+          python -m venv build-venv
+          .\build-venv\Scripts\python.exe -m pip install --upgrade pip
+          .\build-venv\Scripts\python.exe -m pip install -r requirements.txt
+          .\build-venv\Scripts\python.exe -m pip install pyinstaller
+      - name: Windows paketini oluştur
+        env:
+          PYTHON_BIN: ${{ github.workspace }}\build-venv\Scripts\python.exe
+        run: .\build.bat
+      # Artifact deposu dolduğunda paket yine de release'e yüklenebilsin diye bu
+      # adımın başarısızlığı derlemeyi düşürmez.
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: GermanCourseAI-Windows
+          path: dist/GermanCourseAI-Windows.zip
+          if-no-files-found: error
+      - name: Paketi release'e yükle
+        if: inputs.release_tag != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          REPO: ${{ github.repository }}
+        run: gh release upload "$env:RELEASE_TAG" dist/GermanCourseAI-Windows.zip --clobber -R "$env:REPO"
